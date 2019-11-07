@@ -1,0 +1,297 @@
+body{
+  margin:0;
+  padding:0;
+  line-height: 150%;
+}
+
+h1,h2,h3,h4,h5,h6,p{
+  margin: 0;
+  padding: 0;
+}
+
+/*========================================
+  ヘッダー
+========================================*/
+
+header{
+  margin-bottom: 30px;
+  width: 100%;
+  height: 80px;
+  background: green;
+}
+
+header h1{
+  float: left;
+  margin: 0;
+  text-align: center;
+  font-size: 20px;
+  font-family: 'Montserrat', sans-serif;
+  line-height: 80px;
+}
+
+/*========================================
+  リンク
+========================================*/
+a,
+a:active,
+a:focus {
+  color: #b6a489;
+  text-decoration: none;
+}
+
+/*========================================
+  ナビゲーション
+========================================*/
+#top-nav {
+  position: relative;
+  float: right;
+  width: 500px;
+  height: 80px;
+}
+
+nav a{
+  padding: 10px 15px;
+  font-weight: bold;
+  font-size:14px;
+}
+
+nav a:hover{
+  text-decoration: underline;
+}
+
+#top-nav ul{
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  width:450px;
+  height:80px;
+  list-style: none;
+  line-height: 80px;
+}
+
+#top-nav li{
+  float: right;
+}
+
+/*========================================
+  フッター
+========================================*/
+footer {
+  padding: 15px;
+  width: 100%;
+  background: #333;
+  color: #f6f5f5;
+  text-align: center;
+  font-size: 12px;
+}
+
+footer a {
+  color: #f6f5f5;
+}
+
+/*========================================
+  レイアウト
+========================================*/
+.site-width {
+  margin: 0 auto;
+  width: 980px;
+}
+
+#contents{
+  overflow: hidden;
+  margin: 20px auto;
+}
+
+.page-2colum #main {
+  width: 760px;
+  border: 5px solid #f1f1f1;
+  box-sizing: border-box;
+}
+
+.page-2colum #sidebar {
+    margin: 0 0 0 20px;
+}
+
+#main {
+  min-height: 600px;
+  float: left;
+}
+
+.page-1colum #main {
+  width: 100%;
+}
+
+section h1.title {
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* ページタイトル */
+.page-title {
+  margin-bottom: 50px;
+  padding-top: 20px;
+  text-align: center;
+  font-size: 32px;
+}
+
+/*========================================
+  サイドバー
+========================================*/
+
+
+#sidebar{
+  float:left;
+  width: 200px;
+  min-height: 600px;
+  background: #f6f5f4;
+  padding: 15px;
+  box-sizing: border-box;
+
+}
+
+.page-2colum #sidebar > a {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.page-2colum #sidebar > a:hover {
+  text-decoration: underline;
+}
+
+
+/*========================================
+  フォーム
+========================================*/
+
+input[type="text"], input[type="password"], input[type="number"], .form select,
+textarea {
+  display: block;
+  box-sizing: border-box;
+  margin-bottom: 15px;
+  padding: 10px;
+  width: 100%;
+  height: 60px;
+  border: none;
+  background: #f6f5f5;
+  font-size: 18px;
+}
+
+input[type="checkbox"]{
+  width: 18px;
+  height: 18px;
+  vertical-align:middle;
+}
+input[type="submit"]{
+  background-color: black;
+  color: white;
+  width:100%;
+  border:none;
+  padding:15px 30px;
+  margin: 15px 0px;
+}
+
+label{
+  display: block;
+}
+label.err input, label.err select{
+  background: #f7dcd9;
+}
+
+.btn-container{
+  overflow: hidden;
+}
+.form .btn{
+  float: right;
+}
+
+.form .btn:hover{
+  cursor:pointer;
+}
+
+.form a:hover{
+  text-decoration: underline;
+}
+
+.form .btn-mid{
+  max-width: 150px;
+}
+
+.form .title {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.form .area-msg{
+  padding: 0 0 15px 0;
+  color: red;
+}
+
+.form .area-drop{
+  margin-bottom: 15px;
+  width: 100%;
+  height: 600px;
+  line-height: 400px;
+  background: #f6f5f4;
+  color: #ccc;
+  text-align: center;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.form .input-file{
+  opacity:0;
+  max-width:100%;
+  height:auto;
+  position:absolute;
+  top:0;
+  left:0;
+  z-index: 2; /* 必ずz-indexをつけないと登録画像を変更する際にドラッグ＆ドロップできなくなる*/
+}
+
+.page-1colum .form-container {
+  margin: 80px auto;
+}
+
+
+.form {
+  margin: 0 auto;
+  padding: 30px;
+  width: 400px;
+  border: 5px solid #f1f1f1;
+}
+
+.page-2colum .form{
+  border: none;
+}
+
+.page-2colum textarea{
+  min-height: 200px;
+}
+
+.form .counter-text{
+  text-align: right;
+}
+
+.form .prev-img{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top:0;
+  left:0;
+}
+
+/*========================================
+  その他
+========================================*/
+.msg-slide{
+  position: fixed;
+  top: 0;
+  width:100%;
+  height:40px;
+  background: rgba(122,206,230,0.6);
+  text-align: center;
+  font-size:16px;
+  line-height: 40px;
+}
