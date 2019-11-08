@@ -231,13 +231,21 @@ label.err input, label.err select{
 .form .area-drop{
   margin-bottom: 15px;
   width: 100%;
-  height: 600px;
+  height: auto;
   line-height: 400px;
   background: #f6f5f4;
   color: #ccc;
   text-align: center;
   position: relative;
   box-sizing: border-box;
+}
+
+.form .imgDrop-container {
+  width: 50%;
+  height: 25%;
+  padding-right: 15px;
+  box-sizing: border-box;
+  float: left;
 }
 
 .form .input-file{
@@ -252,6 +260,11 @@ label.err input, label.err select{
 
 .page-1colum .form-container {
   margin: 80px auto;
+}
+
+.page-2colum .form-container {
+  margin: 80px auto;
+
 }
 
 

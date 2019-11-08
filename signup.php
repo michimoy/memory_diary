@@ -77,12 +77,14 @@ if (!empty($_POST)) {
             $_SESSION['login_limit'] = $sesLimit;
             // ユーザーIDを格納
             $_SESSION['user_id'] = $dbh->lastInsertId();
-
+            $_SESSION['msg_success'] = SUC03;
 
             debug('セッション変数の中身：'.print_r($_SESSION,true));
             debug('マイメモリーへ遷移します。');
 
-            header("Location:mymemory.php"); //マイページへ
+            header("Location:mypage.php"); //マイページへ
+          }else{
+            $err_msg['common'] = MSG09;
           }
         } catch (Exception $e) {
           error_log('エラー発生:' . $e->getMessage());
@@ -164,10 +166,15 @@ require('head.php');
               ?>
             </div>
               性別
-              <input id="men" type="radio" name="sex" value="1" <?php if(!empty($_POST['sex']) && $_POST['sex'] == "1") echo 'checked'; ?> required/>
-              <label for="men">男</label>
-              <input id="women" type="radio" name="sex" value="2" <?php if(!empty($_POST['sex']) && $_POST['sex'] == "2") echo 'checked'; ?> required/>
-              <label for="women">女</label>
+            <label style="display:inline;">
+              <input id="men" type="radio" name="sex" value="1" <?php if(!empty($_POST['sex']) && $_POST['sex'] == "1") echo 'checked'; ?>>
+              男
+            </label>
+            <label style="display:inline;">
+              <input id="women" type="radio" name="sex" value="2" <?php if(!empty($_POST['sex']) && $_POST['sex'] == "2") echo 'checked'; ?> >
+              女
+            </label>
+
             <div class="area-msg">
               <?php
               if(!empty($err_msg['sex'])) echo $err_msg['sex'];
