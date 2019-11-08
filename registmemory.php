@@ -10,6 +10,7 @@ debugLogStart();
 $siteTitle = '思い出を登録';
 require('head.php');
 
+
 //================================
 // 画面処理
 //================================
@@ -50,6 +51,23 @@ require('auth.php');
                 }
               ?>
           </label>
+
+          <label class="<?php if(!empty($err_msg['category_id'])) echo 'err'; ?>">
+            カテゴリ<span class="label-require">必須</span>
+            <select name="category_id">
+              <option value="0" <?php if(getFormData('category_id') == 0 ){ echo 'selected'; } ?> >選択してください</option>
+              <?php
+                foreach($dbCategoryData as $key => $val){
+              ?>
+                <option value="<?php echo $val['id'] ?>" <?php if(getFormData('category_id') == $val['id'] ){ echo 'selected'; } ?> >
+                  <?php echo $val['name']; ?>
+                </option>
+              <?php
+                }
+              ?>
+            </select>
+          </label>
+
           <div class="area-msg">
             <?php
             if(!empty($err_msg['shooting_date'])) echo $err_msg['shooting_date'];
