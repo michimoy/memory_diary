@@ -292,6 +292,57 @@ function uploadImg($file, $key){
   }
 }
 
+
+function getCategory(){
+
+  debug('カテゴリー情報を取得します。');
+  //例外処理
+  try {
+    // DBへ接続
+    $dbh = dbConnect();
+    // SQL文作成
+    $sql = 'SELECT * FROM category';
+    $data = array();
+    // クエリ実行
+    $stmt = queryPost($dbh, $sql, $data);
+
+    if($stmt){
+      // クエリ結果の全データを返却
+      return $stmt->fetchAll();
+    }else{
+      return false;
+    }
+
+  } catch (Exception $e) {
+    error_log('エラー発生:' . $e->getMessage());
+  }
+  }
+
+  function getCharacter(){
+
+    debug('カテゴリー情報を取得します。');
+    //例外処理
+    try {
+      // DBへ接続
+      $dbh = dbConnect();
+      // SQL文作成
+      $sql = 'SELECT * FROM characters';
+      $data = array();
+      // クエリ実行
+      $stmt = queryPost($dbh, $sql, $data);
+
+      if($stmt){
+        // クエリ結果の全データを返却
+        return $stmt->fetchAll();
+      }else{
+        return false;
+      }
+
+    } catch (Exception $e) {
+      error_log('エラー発生:' . $e->getMessage());
+    }
+    }
+
 //sessionを１回だけ取得できる
 function getSessionFlash($key){
   if(!empty($_SESSION[$key])){

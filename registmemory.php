@@ -14,7 +14,21 @@ require('head.php');
 //================================
 // 画面処理
 //================================
+
 //ログイン認証
+
+// 画面表示用データ取得
+//================================
+
+// DBからカテゴリデータを取得
+$dbCategoryData = getCategory();
+// DBから登場人物データを取得
+$dbCharacterData = getCharacter();
+
+
+var_dump($dbCharacterData);
+exit;
+
 require('auth.php');
 ?>
 <body class = "page-2colum">
