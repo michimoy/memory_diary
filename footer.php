@@ -1,7 +1,8 @@
 <footer id="footer">
   Copyright Task Manager. All Rights Reserved.
 </footer>
-<script src="js/vendor/jquery-2.2.2.min.js"></script>
+<script src="js/jquery-2.2.2.min.js"></script>
+<script src="js/jquery.multi-select.js"></script>
 <script>
   $(function(){
     var $ftr = $('#footer');
@@ -23,6 +24,9 @@
       $jsShowMsg.slideToggle('slow');
       setTimeout(function(){ $jsShowMsg.slideToggle('slow'); }, 5000);
     };
+
+    $('#category-multiselect').multiSelect();
+    $('#character-multiselect').multiSelect();
 
     // 画像ライブプレビュー
     var $dropArea = $('.area-drop');
@@ -49,6 +53,7 @@
 
       fileReader.readAsDataURL(file);
     });
+
 
 
   });

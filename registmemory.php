@@ -25,10 +25,6 @@ $dbCategoryData = getCategory();
 // DBから登場人物データを取得
 $dbCharacterData = getCharacter();
 
-
-var_dump($dbCharacterData);
-exit;
-
 require('auth.php');
 ?>
 <body class = "page-2colum">
@@ -42,7 +38,7 @@ require('auth.php');
       <div class="form-container">
         <form class="form" action="" method="post" enctype="multipart/form-data" style="width:100%;box-sizing:border-box;">
           <label class="<?php if(!empty($err_msg['shooting_date'])) echo 'err';  ?>">
-            撮影日<span class="label-require">必須</span>
+            記録日<span class="label-require">必須</span>
             <input type="date" name="shooting_date" value="<?php if(!empty($_POST['shooting_date'])) echo $_POST['shooting_date']; ?>">
           </label>
           <div class="area-msg">
@@ -51,25 +47,30 @@ require('auth.php');
             ?>
           </div>
 
-          <label class="<?php if(!empty($err_msg['character_id'])) echo 'err';  ?>">
+          <label class="<?php if(!empty($err_msg['character_id'])) echo 'err'; ?>">
             登場人物<span class="label-require">必須</span>
-            <select name="character_id">
-              <option value="0" <?php if(getFormData('character_id') == 0 ){ echo 'selected'; } ?> >選択してください</option>
+            <select multiple="multiple" id="character-multiselect" name="character_id">
               <?php
                 foreach($dbCharacterData as $key => $val){
               ?>
-                <option value="<?php echo $val['id'] ?>" <?php if(getFormData('category_id') == $val['id'] ){ echo 'selected'; } ?> >
+                <option value="<?php echo $val['id'] ?>" <?php if(getFormData('character_id') == $val['id'] ){ echo 'selected'; } ?> >
                   <?php echo $val['name']; ?>
                 </option>
               <?php
                 }
               ?>
+            </select>
           </label>
 
+          <div class="area-msg">
+            <?php
+            if(!empty($err_msg['character_id'])) echo $err_msg['character_id'];
+            ?>
+          </div>
+
           <label class="<?php if(!empty($err_msg['category_id'])) echo 'err'; ?>">
-            カテゴリ<span class="label-require">必須</span>
-            <select name="category_id">
-              <option value="0" <?php if(getFormData('category_id') == 0 ){ echo 'selected'; } ?> >選択してください</option>
+            カテゴリー<span class="label-require">必須</span>
+            <select multiple="multiple" id="category-multiselect" name="category_id">
               <?php
                 foreach($dbCategoryData as $key => $val){
               ?>
@@ -84,10 +85,32 @@ require('auth.php');
 
           <div class="area-msg">
             <?php
-            if(!empty($err_msg['shooting_date'])) echo $err_msg['shooting_date'];
+            if(!empty($err_msg['category_id'])) echo $err_msg['category_id'];
             ?>
           </div>
 
+          <label class="<?php if(!empty($err_msg['area'])) echo 'err';  ?>">
+            記録エリア<span class="label-require">必須</span>
+            <input type="text" name="area" value="<?php echo getFormData('area'); ?>">
+          </label>
+
+          <div class="area-msg">
+            <?php
+            if(!empty($err_msg['area'])) echo $err_msg['area'];
+            ?>
+          </div>
+
+          <label class="<?php if(!empty($err_msg['memory_explanation'])) echo 'err';  ?>">
+            思い出の詳細<span class="label-require">必須</span><span>(500文字まで)</span>
+            <textarea id="js-count"　name="memory_explanation"></textarea>
+          </label>
+          <p class="counter-text"><span id="js-count-view">0</span>/500</p>
+
+          <div class="area-msg">
+            <?php
+            if(!empty($err_msg['memory_explanation'])) echo $err_msg['memory_explanation'];
+            ?>
+          </div>
 
           <div style="overflow:hidden;">
             <div class="imgDrop-container">
@@ -146,6 +169,9 @@ require('auth.php');
                 ?>
               </div>
             </div>
+          </div>
+          <div class="btn-container">
+            <input type="submit" class="btn btn-mid" value="記録する">
           </div>
         </form>
       </div>
