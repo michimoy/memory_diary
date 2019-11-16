@@ -183,6 +183,7 @@ input[type="checkbox"]{
   height: 18px;
   vertical-align:middle;
 }
+
 input[type="submit"]{
   background-color: black;
   color: white;
@@ -195,6 +196,7 @@ input[type="submit"]{
 label{
   display: block;
 }
+
 label.err input, label.err select{
   background: #f7dcd9;
 }
@@ -258,6 +260,14 @@ label.err input, label.err select{
   z-index: 2; /* 必ずz-indexをつけないと登録画像を変更する際にドラッグ＆ドロップできなくなる*/
 }
 
+.form .label-require{
+  background: #ffb6c1;
+  margin-left: 10px;
+  color: white;
+  font-size: 14px;
+  padding:3px 5px;
+}
+
 .page-1colum .form-container {
   margin: 80px auto;
 }
@@ -266,7 +276,6 @@ label.err input, label.err select{
   margin: 80px auto;
 
 }
-
 
 .form {
   margin: 0 auto;

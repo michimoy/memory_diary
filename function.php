@@ -170,7 +170,7 @@ function queryPost($dbh,$sql,$data){
 
     debug('クエリ発行に失敗しました');
     $err_msg['common'] = MSG09;
-    return 0;
+    return false;
   }
   debug('クエリ発行に成功');
   return $stmt;
@@ -349,5 +349,31 @@ function getSessionFlash($key){
     $data = $_SESSION[$key];
     $_SESSION[$key] = '';
     return $data;
+  }
+}
+
+function getMemory($u_id,$m_id){
+  debug('思い出情報を取得します。');
+  debug('ユーザーID：'.$u_id);
+  debug('思い出ID：'.$m_id);
+
+  //例外処理
+  try {
+    //DBへ接続
+    $dbh = dbConnect();
+    //SQL文作成
+    $sql = 'SELECT * FROM memories WHERE user_id = :u_id and id = :m_id and delete_flg = 0';
+    $data = array(':u_id' => $u_id,':m_id' => $_m_id);
+    //クエリ実行
+    $stmt = queryPost($dbh,$sql,$data);
+
+    if ($stmt) {
+      // クエリ結果のデータを１レコード返却
+      return $stmt->fetch(PDO::FETCH_ASSOC);
+    }else{
+      return false;
+    }
+  } catch (Exception $e) {
+    error_log('エラー発生:' . $e->getMessage());
   }
 }
