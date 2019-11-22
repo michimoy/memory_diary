@@ -56,9 +56,14 @@ define('MSG06', 'メールアドレスが既に登録されています');
 define('MSG07', 'メールアドレスまたはパスワードが違います');
 define('MSG08', 'パスワード(再入力)がパスワードと異なります');
 define('MSG09','エラーが発生しました。しばらく経ってからやり直してください。');
+define('MSG10','日付のフォーマットが異なります。');
+define('MSG11','30文字以内で入力してください');
+define('MSG12','いずれか一つは選択してください');
+define('MSG13','500文字以内で入力してください');
 define('SUC01','ログインしました。');
 define('SUC02','プロフィールを更新しました。');
 define('SUC03','ユーザ登録が完了しました。');
+define('SUC04','思い出の登録が完了しました。');
 
 
 //エラーメッセージ格納用の配列
@@ -66,7 +71,7 @@ $err_msg = array();
 
 //バリデーション関数（未入力チェック）
 function validRequired($str, $key){
-  if($str === ''){ //金額フォームなどを考えると数値の０はOKにし、空文字はダメにする
+  if($str === '' || empty($str) ){ //金額フォームなどを考えると数値の０はOKにし、空文字はダメにする
     global $err_msg;
     $err_msg[$key] = MSG01;
   }
@@ -85,6 +90,15 @@ function validMaxLen($str,$key,$max = 255){
   if (mb_strlen($str) > $max) {
     global $err_msg;
     $err_msg[$key] = MSG03;
+  }
+  if ($max == 30 && mb_strlen($str) > $max) {
+    global $err_msg;
+    $err_msg[$key] = MSG11;
+  }
+
+  if ($max == 500 && mb_strlen($str) > $max) {
+    global $err_msg;
+    $err_msg[$key] = MSG13;
   }
 }
 
@@ -110,6 +124,27 @@ function validMatch($str1,$str2,$key){
     $err_msg[$key] = MSG08;
   }
 }
+
+//バリデーション関数(日付フォーマット)
+function validDateformat($date,$key){
+  global $err_msg;
+  $intflag = true;
+
+  if(empty($date)){
+    $intflag = false;
+    $err_msg[$key] = MSG10;
+  }else{
+    list($Y, $m, $d) = explode('-', $date);
+    $joinstr = ($Y.$m.$d);
+    if(!preg_match("/^[0-9]+$/", $joinstr)){
+      $intflag = false;
+      $err_msg[$key] = MSG10;
+    }
+    if ($intflag && !checkdate($m, $d, $Y)) {
+      $err_msg[$key] = MSG10;
+    }
+   }
+ }
 
 //バリデーション関数（Email重複チェック)
 
@@ -138,6 +173,9 @@ function validEmailDup($email){
 
 }
 
+
+
+
 //================================
 // データベース
 //================================
@@ -164,7 +202,6 @@ function dbconnect(){
 function queryPost($dbh,$sql,$data){
   //クエリ作成
   $stmt = $dbh->prepare($sql);
-
   //プレースホルダーに値をセットし、SQL分を実行する。
   if(!$stmt->execute($data)){
 
@@ -201,41 +238,48 @@ function getUser($u_id){
 }
 // サニタイズ
 function sanitize($str){
-  return htmlspecialchars($str,ENT_QUOTES);
+  if (is_array($str)) {
+    return array_map('htmlspecialchars',$str);
+  }else{
+    return htmlspecialchars($str,ENT_QUOTES);
+  }
 }
 
 // フォーム入力保持
-function getFormData($str, $flg = false){
+function getFormData($str,$flg = false){
+
 if ($flg) {
   $method = $_GET;
 }else{
   $method = $_POST;
 }
+
 global $dbFormData;
-// ユーザーデータがある場合
-  if(!empty($dbFormData)){
-  //フォームのエラーがある場合
-  if(!empty($err_msg[$str])){
-    //POSTにデータがある場合
-    if(isset($method[$str])){
-      return sanitize($method[$str]);
+  // ユーザーデータがある場合
+    if(!empty($dbFormData)){
+    //フォームのエラーがある場合
+    if(!empty($err_msg[$str])){
+      //POSTにデータがある場合
+      if(isset($method[$str])){
+        return sanitize($method[$str]);
+      }else{
+        //ない場合（基本ありえない）はDBの情報を表示
+        
+        return sanitize($dbFormData[$str]);
+      }
     }else{
-      //ない場合（基本ありえない）はDBの情報を表示
-      return sanitize($dbFormData[$str]);
+      //POSTにデータがあり、DBの情報と違う場合
+      if(isset($method[$str]) && $method[$str] !== $dbFormData[$str]){
+        return sanitize($method[$str]);
+      }else{
+        return sanitize($dbFormData[$str]);
+      }
     }
   }else{
-    //POSTにデータがあり、DBの情報と違う場合
-    if(isset($method[$str]) && $method[$str] !== $dbFormData[$str]){
+    if(isset($method[$str])){
       return sanitize($method[$str]);
-    }else{
-      return sanitize($dbFormData[$str]);
     }
   }
-}else{
-  if(isset($method[$str])){
-    return sanitize($method[$str]);
-  }
-}
 }
 
 // 画像処理
@@ -363,7 +407,7 @@ function getMemory($u_id,$m_id){
     $dbh = dbConnect();
     //SQL文作成
     $sql = 'SELECT * FROM memories WHERE user_id = :u_id and id = :m_id and delete_flg = 0';
-    $data = array(':u_id' => $u_id,':m_id' => $_m_id);
+    $data = array(':u_id' => $u_id,':m_id' => $m_id);
     //クエリ実行
     $stmt = queryPost($dbh,$sql,$data);
 
@@ -375,5 +419,57 @@ function getMemory($u_id,$m_id){
     }
   } catch (Exception $e) {
     error_log('エラー発生:' . $e->getMessage());
+  }
+}
+
+function getMyMemory($u_id,$currentMinNum = 1,$span = 20){
+  debug('思い出情報を取得します。');
+  debug('ユーザーID：'.$u_id);
+
+  //例外処理
+  try {
+    //DBへ接続
+    $dbh = dbConnect();
+    //SQL文作成
+    $sql = 'SELECT * FROM memories WHERE user_id = :u_id and delete_flg = 0';
+    $sql .= ' LIMIT '.$span.' OFFSET '.$currentMinNum;
+    $data = array(':u_id' => $u_id);
+    //クエリ実行
+    $stmt = queryPost($dbh,$sql,$data);
+
+    if ($stmt) {
+      $rst['total'] = $stmt->rowCount(); //総レコード数
+      $rst['total_page'] = ceil($rst['total']/$span); //総ページ数
+      // クエリ結果のデータを全て返却
+      return $stmt->fetchAll();
+    }else{
+      return false;
+    }
+  } catch (Exception $e) {
+    error_log('エラー発生:' . $e->getMessage());
+  }
+}
+
+//GETパラメータ付与
+// $del_key : 付与から取り除きたいGETパラメータのキー
+function appendGetParam($arr_del_key = array()){
+  if(!empty($_GET)){
+    $str = '?';
+    foreach($_GET as $key => $val){
+      if(!in_array($key,$arr_del_key,true)){ //取り除きたいパラメータじゃない場合にurlにくっつけるパラメータを生成
+        $str .= $key.'='.$val.'&';
+      }
+    }
+    $str = mb_substr($str, 0, -1, "UTF-8");
+    return $str;
+  }
+}
+
+//画像表示用関数
+function showImg($path){
+  if(empty($path)){
+    return 'img/sample-img.png';
+  }else{
+    return $path;
   }
 }

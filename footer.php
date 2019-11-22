@@ -4,6 +4,9 @@
 <script src="js/jquery-3.4.1.min.js"></script>
 <script src="js/jquery-ui.min.js"></script>
 <script src="js/jquery.multi-select.js"></script>
+<script src="js/modernizr.custom.js"></script>
+<script src="js/jquerypp.custom.js"></script>
+<script src="js/jquery.bookblock.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/ui-lightness/jquery-ui.css">
 <script>
   $(function(){
@@ -109,19 +112,67 @@
       $dropArea.css('border', 'none');
       var file = this.files[0],
           $img = $(this).siblings('.prev-img'),
-          fileReader = new FileReader();
+          fileReader = new FileReader() ;
 
       fileReader.onload = function(event){
           $img.attr('src', event.target.result).show();
       };
-
+      // 6. 画像読み込み
       fileReader.readAsDataURL(file);
     });
 
-
-
   });
+</script>
 
+<script>
+//BookBlock
+var Page = (function() {
+
+  var $grid = $( '#bb-custom-grid' );
+
+  return {
+    init : function() {
+      $grid.find( 'div.bb-bookblock' ).each( function( i ) {
+
+        var $bookBlock = $( this ),
+          $nav = $bookBlock.next().children( 'span' ),
+          bb = $bookBlock.bookblock( {
+            speed : 600,
+            shadows : false
+          } );
+
+        // add navigation events
+        $nav.each( function( i ) {
+          $( this ).on( 'click touchstart', function( event ) {
+            var $dot = $( this );
+            $nav.removeClass( 'bb-current' );
+            $dot.addClass( 'bb-current' );
+            $bookBlock.bookblock( 'jump', i + 1 );
+            return false;
+          } );
+        } );
+
+        // add swipe events
+        $bookBlock.children().on( {
+          'swipeleft' : function( event ) {
+            $bookBlock.bookblock( 'next' );
+            return false;
+          },
+          'swiperight' : function( event ) {
+            $bookBlock.bookblock( 'prev' );
+            return false;
+          }
+
+        } );
+
+      } );
+    }
+  };
+
+})();
+</script>
+<script>
+  Page.init();
 </script>
 </body>
 </html>

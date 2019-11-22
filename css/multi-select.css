@@ -21,6 +21,9 @@
   float: left;
   width: 45%;
 }
+label.err.ms-container .ms-selectable ,label.err.ms-container .ms-selection{
+  background: #f7dcd9;
+}
 .ms-container .ms-selection{
   float: right;
 }

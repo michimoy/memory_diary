@@ -197,7 +197,7 @@ label{
   display: block;
 }
 
-label.err input, label.err select{
+label.err input,label.err select,label.err textarea{
   background: #f7dcd9;
 }
 
@@ -232,9 +232,7 @@ label.err input, label.err select{
 
 .form .area-drop{
   margin-bottom: 15px;
-  width: 100%;
-  height: auto;
-  line-height: 400px;
+  line-height: 250px;
   background: #f6f5f4;
   color: #ccc;
   text-align: center;
@@ -244,7 +242,6 @@ label.err input, label.err select{
 
 .form .imgDrop-container {
   width: 50%;
-  height: 25%;
   padding-right: 15px;
   box-sizing: border-box;
   float: left;
@@ -252,8 +249,8 @@ label.err input, label.err select{
 
 .form .input-file{
   opacity:0;
-  max-width:100%;
-  height:auto;
+  width:100%;
+  height:400px;
   position:absolute;
   top:0;
   left:0;
@@ -302,6 +299,7 @@ label.err input, label.err select{
   position: absolute;
   top:0;
   left:0;
+  box-sizing: border-box;
 }
 
 /*========================================
@@ -316,4 +314,17 @@ label.err input, label.err select{
   text-align: center;
   font-size:16px;
   line-height: 40px;
+}
+
+.img-responsive{
+  width:100%;
+  height:100%;
+}
+
+.bb-custom-wrapper nav{
+  text-align: center;
+}
+
+.bb-custom-wrapper {
+  min-height: 600px;
 }
