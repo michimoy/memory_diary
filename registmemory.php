@@ -19,7 +19,6 @@ require('auth.php');
 //================================
 // GETデータを格納
 $m_id = (!empty($_GET['m_id'])) ? $_GET['m_id'] : '';
-var_dump($m_id);
 //DBから思い出データを取得
 $dbFormData = (!empty($m_id)) ? getMemory($_SESSION['user_id'], $m_id) : '';
 // 新規登録画面か編集画面か判別用フラグ
@@ -137,15 +136,15 @@ if (!empty($_POST)) {
         debug('DB更新です。');
         $sql = 'UPDATE memories SET memory_title = :memory_title,shooting_date = :shooting_date, character_id = :character_id,
                category_id = :category_id,area = :area,memory_explanation = :memory_explanation,pic1 = :pic1,pic2 = :pic2,pic3 = :pic3,pic4 = :pic4 WHERE user_id = :u_id AND id = :m_id';
-        $data =  array(':memory_title' => $memory_title,':shooting_date' => date('Y/m/d',strtotime($shooting_date)),':character_id' => implode(',',$character),
-                       ':category_id' => implode(',',$category),':area' => $area,':memory_explanation' => $memory_explanation,
-                       ':pic1' => $pic1,':pic2' => $pic2,':pic3' => $pic3,':pic4' => $pic4);
+        $data = array(':memory_title' => $memory_title,':shooting_date' => date('Y-m-d',strtotime($shooting_date)),':character_id' => implode(',',$character),
+                      ':category_id' => implode(',',$category),':area' => $area,':memory_explanation' => $memory_explanation,
+                      ':pic1' => $pic1,':pic2' => $pic2,':pic3' => $pic3,':pic4' => $pic4,':u_id' => $_SESSION['user_id'],':m_id' => $m_id);
       }else{
         debug('DB新規登録です。');
         $sql = 'INSERT INTO memories (memory_title,shooting_date,character_id,category_id,area,memory_explanation,pic1,pic2,pic3,pic4,user_id,create_date) VALUES (:memory_title,:shooting_date,:character_id,:category_id,:area,:memory_explanation,:pic1,:pic2,:pic3,:pic4,:u_id,:create_date)';
         $data = array(':memory_title' => $memory_title,':shooting_date' => date('Y-m-d',strtotime($shooting_date)),':character_id' => implode(',',$character),
-                       ':category_id' => implode(',',$category),':area' => $area,':memory_explanation' => $memory_explanation,
-                       ':pic1' => $pic1,':pic2' => $pic2,':pic3' => $pic3,':pic4' => $pic4,':u_id' => $_SESSION['user_id'], ':create_date' => date('Y-m-d H:i:s'));
+                      ':category_id' => implode(',',$category),':area' => $area,':memory_explanation' => $memory_explanation,
+                      ':pic1' => $pic1,':pic2' => $pic2,':pic3' => $pic3,':pic4' => $pic4,':u_id' => $_SESSION['user_id'], ':create_date' => date('Y-m-d H:i:s'));
       }
       debug('SQL：'.$sql);
       debug('流し込みデータ：'.print_r($data,true));
@@ -153,7 +152,12 @@ if (!empty($_POST)) {
       $stmt = queryPost($dbh, $sql, $data);
       // クエリ成功の場合
       if($stmt){
-        $_SESSION['msg_success'] = SUC04;
+        if ($edit_flg) {
+          $_SESSION['msg_success'] = SUC05;
+        }else{
+          $_SESSION['msg_success'] = SUC04;
+        }
+
         debug('マイページへ遷移します。');
         header("Location:mypage.php"); //マイページへ
       }else{
@@ -181,6 +185,11 @@ require('head.php');
     <section id="main">
       <div class="form-container">
         <form class="form" action="" method="post" enctype="multipart/form-data" style="width:100%;box-sizing:border-box;">
+          <div class="area-msg">
+            <?php
+            if(!empty($err_msg['common'])) echo $err_msg['common'];
+            ?>
+          </div>
           <label class="<?php if(!empty($err_msg['memory_title'])) echo 'err';  ?>">
             思い出の名前<span class="label-require">必須</span>
             <input type="text" name="memory_title" placeholder="最愛の家族" value="<?php echo getFormData('memory_title');?>">
@@ -206,9 +215,12 @@ require('head.php');
             <select multiple="multiple" id="character-multiselect" name="character_id[]">
               <?php
                 $character_id = getFormData('character_id');
+                if (empty($character) && $edit_flg) {
+                  $character_id = explode(',',getFormData('character_id'));
+                }
                 foreach($dbCharacterData as $key => $val){
               ?>
-                <option value="<?php echo sanitize($val['id']);?>" <?php if(in_array($val['id'],(array)$character_id) ){ echo 'selected'; } ?> >
+                <option value="<?php echo sanitize($val['id']);?>" <?php if($edit_flg || !empty($character))if(in_array($val['id'],$character_id,true)){ echo 'selected'; } ?> >
                   <?php echo sanitize($val['name']); ?>
                 </option>
               <?php
@@ -227,12 +239,15 @@ require('head.php');
             カテゴリー<span class="label-require">必須</span>
             <select multiple="multiple" id="category-multiselect" name="category_id[]">
               <?php
-                $category_id = getFormData('category_id');
-                foreach($dbCategoryData as $key => $val){
-              ?>
-                <option value="<?php echo sanitize($val['id']); ?>" <?php if(in_array($val['id'],(array)$category_id) ){ echo 'selected'; } ?> >
-                  <?php echo sanitize($val['name']); ?>
-                </option>
+              $category_id = getFormData('category_id');
+              if (empty($category) && $edit_flg) {
+                $category_id = explode(',',getFormData('category_id'));
+              }
+              foreach($dbCategoryData as $key => $val){
+            ?>
+              <option value="<?php echo sanitize($val['id']);?>" <?php if($edit_flg || !empty($category))if(in_array($val['id'],$category_id,true)){ echo 'selected'; } ?> >
+                <?php echo sanitize($val['name']); ?>
+              </option>
               <?php
                 }
               ?>
@@ -325,8 +340,10 @@ require('head.php');
               </div>
             </div>
           </div>
+
           <div class="btn-container">
-            <input type="submit" class="btn btn-mid" value="記録する">
+
+            <input type="submit" class="btn btn-mid" value="<?php echo $edit_flg ? "修正する" : "記録する";?>">
           </div>
         </form>
       </div>

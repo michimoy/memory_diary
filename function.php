@@ -63,7 +63,8 @@ define('MSG13','500文字以内で入力してください');
 define('SUC01','ログインしました。');
 define('SUC02','プロフィールを更新しました。');
 define('SUC03','ユーザ登録が完了しました。');
-define('SUC04','思い出の登録が完了しました。');
+define('SUC04','思い出の記録が完了しました。');
+define('SUC05','思い出の修正が完了しました。');
 
 
 //エラーメッセージ格納用の配列
@@ -239,6 +240,7 @@ function getUser($u_id){
 // サニタイズ
 function sanitize($str){
   if (is_array($str)) {
+    var_dump('unko');
     return array_map('htmlspecialchars',$str);
   }else{
     return htmlspecialchars($str,ENT_QUOTES);
@@ -253,6 +255,10 @@ if ($flg) {
 }else{
   $method = $_POST;
 }
+if (empty($str)) {
+  var_dump($str);
+  return 0;
+}
 
 global $dbFormData;
   // ユーザーデータがある場合
@@ -264,7 +270,6 @@ global $dbFormData;
         return sanitize($method[$str]);
       }else{
         //ない場合（基本ありえない）はDBの情報を表示
-        
         return sanitize($dbFormData[$str]);
       }
     }else{
@@ -431,7 +436,20 @@ function getMyMemory($u_id,$currentMinNum = 1,$span = 20){
     //DBへ接続
     $dbh = dbConnect();
     //SQL文作成
-    $sql = 'SELECT * FROM memories WHERE user_id = :u_id and delete_flg = 0';
+    $sql = 'SELECT
+            id,
+            category_id,
+            character_id,
+            pic1,
+            pic2,
+            pic3,
+            pic4,
+            shooting_date,
+            memory_explanation,
+            area,
+            memory_title
+            FROM memories
+            WHERE user_id = :u_id and delete_flg = 0';
     $sql .= ' LIMIT '.$span.' OFFSET '.$currentMinNum;
     $data = array(':u_id' => $u_id);
     //クエリ実行
