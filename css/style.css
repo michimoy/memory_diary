@@ -240,6 +240,16 @@ label.err input,label.err select,label.err textarea{
   box-sizing: border-box;
 }
 
+.form .notice {
+  background-color: #fffacd;
+  width:500px;
+  font-size: 13px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color:#0080ff;
+  text-align: center;
+}
+
 .form .imgDrop-container {
   width: 50%;
   padding-right: 15px;
@@ -300,6 +310,36 @@ label.err input,label.err select,label.err textarea{
   top:0;
   left:0;
   box-sizing: border-box;
+}
+
+/*========================================
+  ページネーション
+========================================*/
+
+.pagination{
+  position: relative;
+  overflow: hidden;
+}
+
+.pagination-list{
+  list-style: none;
+  position: relative;
+  padding-left: 0;
+  float: left;
+  left: 50%;
+}
+
+.pagination-list .list-item{
+  float: left;
+  left: -50%;
+  margin-right: 5px;
+  position: relative;
+  background-color: #e0ffff;
+  padding:10px;
+}
+
+.pagination .list-item:last-child {
+  margin-right: 0;
 }
 
 /*========================================

@@ -18,21 +18,22 @@ require('auth.php');
 $u_id = $_SESSION['user_id'];
 // カレントページ
 $currentPageNum = (!empty($_GET['p'])) ? $_GET['p'] : 1; //デフォルトは１ページめ
-// パラメータに不正な値が入っているかチェック
-if(!is_int($currentPageNum)){
-  error_log('エラー発生:指定ページに不正な値が入りました');
-  header("Location:index.php"); //トップページへ
-}
 // 表示件数
-$listSpan = 20;
+$listSpan = 10;
 // 現在の表示レコード先頭を算出
 $currentMinNum = (($currentPageNum-1)*$listSpan);//1ページ目なら(1-1)*20 = 0 、 ２ページ目なら(2-1)*20 = 20
 // DBから思い出データを取得
 $memoryData = getMyMemory($u_id,$currentMinNum);
 
+var_dump($memoryData['total_page']);
 debug('取得した思い出データ：'.print_r($memoryData,true));
 debug('画面表示処理終了 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
 
+//パラメータに不正な値が入っているかチェック
+if(!is_numeric($currentPageNum) && $memoryData['total_page'] < $currentPageNum){
+  error_log('エラー発生:指定ページに不正な値が入りました');
+  header("Location:index.php"); //トップページへ
+}
  ?>
 
 <?php
@@ -60,11 +61,11 @@ require('header.php')
   <section id="main">
     <div class="main clearfix">
       <ul class="bb-custom-grid" id="bb-custom-grid">
-        <?php if(!empty($memoryData)) {
-                foreach ($memoryData as $key => $value) {
+        <?php if(!empty($memoryData['data'])) {
+                foreach ($memoryData['data'] as $key => $value) {
           ?>
         <li>
-          <h3><?php echo $value['memory_title']; ?></h3>
+          <h3 style="text-align:center;"><?php echo $value['memory_title']; ?></h3>
           <div class="bb-bookblock">
             <div class="bb-item">
               <a href="registmemory.php<?php echo (!empty(appendGetParam())) ? appendGetParam().'&m_id='.$value['id'] : '?m_id='.$value['id']; ?>"><img src="<?php echo showImg(sanitize($value['pic1'])); ?>" alt="NonImage" style="width:300px;height:180px;"/></a>
@@ -97,6 +98,9 @@ require('header.php')
          ?>
       </ul>
     </div>
+
+    <?php pagination($currentPageNum, $memoryData['total_page']); ?>
+
   </section>
   <!-- サイドバー -->
   <?php

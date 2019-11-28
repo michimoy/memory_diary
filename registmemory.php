@@ -73,10 +73,10 @@ if (!empty($_POST)) {
     validRequired($memory_title,'memory_title');
     //最大文字数チェック
     validMaxLen($memory_title,'memory_title',30);
-    //未入力チェック
-    validRequired($shooting_date,'shooting_date');
     //日付フォーマットチェック
     validDateformat($shooting_date,'shooting_date');
+    //未入力チェック
+    validRequired($shooting_date,'shooting_date');
     //未入力チェック
     validRequired($area,'area');
     //最大文字数チェック
@@ -153,9 +153,9 @@ if (!empty($_POST)) {
       // クエリ成功の場合
       if($stmt){
         if ($edit_flg) {
-          $_SESSION['msg_success'] = SUC05;
+          $_SESSION['msg_success'] = SUC05; //修正画面
         }else{
-          $_SESSION['msg_success'] = SUC04;
+          $_SESSION['msg_success'] = SUC04; //登録画面
         }
 
         debug('マイページへ遷移します。');
@@ -165,7 +165,7 @@ if (!empty($_POST)) {
       }
 
     } catch (Exception $e) {
-
+      error_log('エラー発生:' . $e->getMessage());
     }
 
   }
@@ -211,7 +211,10 @@ require('head.php');
           </div>
 
           <label class="<?php if(!empty($err_msg['character_id'])) echo 'err'; ?>">
-            登場人物<span class="label-require">必須</span>
+            登場人物 <span class="label-require">必須</span>
+            <div class="notice">
+              左のボックスから選択して、右のボックスには選択された項目が表示されます
+            </div>
             <select multiple="multiple" id="character-multiselect" name="character_id[]">
               <?php
                 $character_id = getFormData('character_id');
@@ -237,6 +240,9 @@ require('head.php');
 
           <label class="<?php if(!empty($err_msg['category_id'])) echo 'err'; ?>">
             カテゴリー<span class="label-require">必須</span>
+            <div class="notice">
+              左のボックスから選択して、右のボックスには選択された項目が表示されます
+            </div>
             <select multiple="multiple" id="category-multiselect" name="category_id[]">
               <?php
               $category_id = getFormData('category_id');
