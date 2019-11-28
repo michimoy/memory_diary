@@ -462,19 +462,23 @@ function getMyMemory($u_id,$currentMinNum,$span = 10){
 
     // ページング用のSQL文作成
     $sql = 'SELECT
-            id,
-            category_id,
-            character_id,
-            pic1,
-            pic2,
-            pic3,
-            pic4,
-            shooting_date,
-            memory_explanation,
-            area,
-            memory_title
-            FROM memories
-            WHERE user_id = :u_id and delete_flg = 0';
+            m.id,
+            m.category_id,
+            m.character_id,
+            m.pic1,
+            m.pic2,
+            m.pic3,
+            m.pic4,
+            m.shooting_date,
+            m.memory_explanation,
+            m.area,
+            m.memory_title,
+            m.favorit_count,
+            u.name
+            FROM memories as m
+            INNER JOIN users as u
+            on m.user_id = u.id
+            WHERE m.user_id = :u_id and m.delete_flg = 0';
     $sql .= ' LIMIT '.$span.' OFFSET '.$currentMinNum;
     $data = array(':u_id' => $u_id);
     //クエリ実行

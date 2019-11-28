@@ -25,12 +25,11 @@ $currentMinNum = (($currentPageNum-1)*$listSpan);//1ページ目なら(1-1)*20 =
 // DBから思い出データを取得
 $memoryData = getMyMemory($u_id,$currentMinNum);
 
-var_dump($memoryData['total_page']);
 debug('取得した思い出データ：'.print_r($memoryData,true));
 debug('画面表示処理終了 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
 
 //パラメータに不正な値が入っているかチェック
-if(!is_numeric($currentPageNum) && $memoryData['total_page'] < $currentPageNum){
+if(!is_numeric($currentPageNum) || (int)$memoryData['total_page'] < $currentPageNum){
   error_log('エラー発生:指定ページに不正な値が入りました');
   header("Location:index.php"); //トップページへ
 }
@@ -65,10 +64,13 @@ require('header.php')
                 foreach ($memoryData['data'] as $key => $value) {
           ?>
         <li>
-          <h3 style="text-align:center;"><?php echo $value['memory_title']; ?></h3>
+          <h3  style="text-align:center;"><?php echo $value['memory_title']; ?></h3>
+          <h3  style="text-align:right; font-size:13px;"><?php echo $value['name']; ?></h3>
           <div class="bb-bookblock">
             <div class="bb-item">
-              <a href="registmemory.php<?php echo (!empty(appendGetParam())) ? appendGetParam().'&m_id='.$value['id'] : '?m_id='.$value['id']; ?>"><img src="<?php echo showImg(sanitize($value['pic1'])); ?>" alt="NonImage" style="width:300px;height:180px;"/></a>
+              <a href="registmemory.php<?php echo (!empty(appendGetParam())) ? appendGetParam().'&m_id='.$value['id'] : '?m_id='.$value['id']; ?>">
+                <img src="<?php echo showImg(sanitize($value['pic1'])); ?>" alt="NonImage" style="width:300px;height:180px;"/>
+              </a>
             </div>
             <div class="bb-item">
               <a href="registmemory.php<?php echo (!empty(appendGetParam())) ? appendGetParam().'&m_id='.$value['id'] : '?m_id='.$value['id']; ?>">
@@ -86,6 +88,7 @@ require('header.php')
               </a>
             </div>
           </div>
+          <h3  style="text-align:right; font-size:14px;"><i class="fa fa-heart" style="color:red;"><?php echo $value['favorit_count']; ?></i></h3>
           <nav>
             <span class="bb-current"></span>
             <span></span>
@@ -93,14 +96,14 @@ require('header.php')
             <span></span>
           </nav>
         </li>
-        <?php   }
+        <?php
+                }
               }
          ?>
       </ul>
     </div>
 
     <?php pagination($currentPageNum, $memoryData['total_page']); ?>
-
   </section>
   <!-- サイドバー -->
   <?php

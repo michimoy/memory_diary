@@ -36,7 +36,7 @@ debug('キャラクターデータ：'.print_r($dbCharacterData,true));
 // パラメータ改ざんチェック
 //================================
 if(!empty($m_id) && empty($dbFormData)){
-  debug('GETパラメータの商品IDが違います。マイページへ遷移します。');
+  debug('GETパラメータのIDが違います。マイページへ遷移します。');
   header("Location:mypage.php"); //マイページへ
 }
 

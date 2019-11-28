@@ -322,6 +322,7 @@ label.err input,label.err select,label.err textarea{
 }
 
 .pagination-list{
+  margin:auto;
   list-style: none;
   position: relative;
   padding-left: 0;
@@ -334,12 +335,28 @@ label.err input,label.err select,label.err textarea{
   left: -50%;
   margin-right: 5px;
   position: relative;
-  background-color: #e0ffff;
   padding:10px;
 }
 
 .pagination .list-item:last-child {
   margin-right: 0;
+}
+
+.pagination .list-item a{
+  display: block;
+  background: #e0ffff;
+  color: black;
+  padding:5px 10px;
+  text-decoration: none;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.pagination .active a{
+  background: #ffe4e1;
+}
+
+.pagination .list-item a:hover {
+  background: #e0ffff;
 }
 
 /*========================================
