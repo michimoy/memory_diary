@@ -7,7 +7,7 @@
 <script src="js/modernizr.custom.js"></script>
 <script src="js/jquerypp.custom.js"></script>
 <script src="js/jquery.bookblock.js"></script>
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/ui-lightness/jquery-ui.css">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 <script>
   $(function(){
     var $ftr = $('#footer');

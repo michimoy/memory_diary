@@ -346,7 +346,7 @@ function getCategory(){
     // DBへ接続
     $dbh = dbConnect();
     // SQL文作成
-    $sql = 'SELECT * FROM category';
+    $sql = 'SELECT * FROM categories';
     $data = array();
     // クエリ実行
     $stmt = queryPost($dbh, $sql, $data);
@@ -432,7 +432,7 @@ function getMyMemory($u_id,$currentMinNum,$span = 10){
     //DBへ接続
     $dbh = dbConnect();
     // 件数用のSQL文作成
-    $sql = 'SELECT id,shooting_date,favorit_count FROM memories';
+    $sql = 'SELECT id FROM memories';
     if(!empty($category)) $sql .= ' WHERE category_id = '.$category;
     if(!empty($sort)){
       switch($sort){
@@ -491,6 +491,167 @@ function getMyMemory($u_id,$currentMinNum,$span = 10){
     }else{
       return false;
     }
+  } catch (Exception $e) {
+    error_log('エラー発生:' . $e->getMessage());
+  }
+}
+
+function getMemoriesList($currentMinNum,$category,$character,$kerword,$sort,$span = 10){
+  debug('思い出情報リストを取得します。');
+  //例外処理
+  try {
+    //DBへ接続
+    $dbh = dbConnect();
+    // 件数用のSQL文作成
+    $sql = 'SELECT
+            m.id,
+            m.category_id,
+            m.character_id,
+            m.pic1,
+            m.pic2,
+            m.pic3,
+            m.pic4,
+            m.shooting_date,
+            m.memory_explanation,
+            m.area,
+            m.memory_title,
+            m.favorit_count,
+            u.name
+            FROM memories as m
+            INNER JOIN users as u
+            on m.user_id = u.id';
+    $where = [];
+    $wherecharacter = [];
+    $wherecategory  = [];
+    if(!empty($character)){
+      foreach ((array) $character as $value) {
+        $wherecharacter[] =" FIND_IN_SET($value,character_id)";
+      }
+      $where[] = implode(' OR ',$wherecharacter);
+    }
+    if(!empty($category)){
+      foreach ((array) $category as $value) {
+        $wherecategory[] =" FIND_IN_SET($value,category_id)";
+      }
+      $where[] = implode(' OR ',$wherecategory);
+    }
+    if (!empty($kerword)) {
+      $where[] = "memory_title LIKE '%$kerword%' OR memory_explanation LIKE '%$kerword%'";
+    }
+    if(!empty($where)){
+      $wheresql = implode(' AND ',$where);
+      $sql.= " WHERE m.user_id = u.id and m.delete_flg = 0 AND ".$wheresql;
+    }else{
+      $sql.= " WHERE m.user_id = u.id and m.delete_flg = 0 ";
+    }
+
+    if(!empty($sort)){
+      switch($sort){
+        case 1:
+          $sql .= " ORDER BY shooting_date ASC";
+          break;
+        case 2:
+          $sql .= " ORDER BY shooting_date DESC";
+          break;
+        case 3:
+          $sql .= " ORDER BY favorit_count ASC";
+          break;
+        case 4:
+          $sql .= " ORDER BY favorit_count DESC";
+          break;
+      }
+    }
+
+    $sql .= ' LIMIT '.$span.' OFFSET '.$currentMinNum;
+    $data = array();
+    //クエリ実行
+    $stmt = queryPost($dbh,$sql,$data);
+    if ($stmt) {
+      //総レコード数
+      $rst['total'] = $stmt->rowCount();
+      //総ページ数
+      $rst['total_page'] = ceil($rst['total']/$span);
+      // クエリ結果のデータを全レコードを格納
+      $rst['data'] = $stmt->fetchAll();
+      return $rst;
+    }else{
+      return false;
+    }
+  } catch (Exception $e) {
+    error_log('エラー発生:' . $e->getMessage());
+  }
+}
+
+function getMemoryOne($m_id){
+  debug('思い出情報を取得します。');
+  debug('思い出ID：'.$m_id);
+  //例外処理
+  try {
+    // DBへ接続
+    $dbh = dbConnect();
+    // SQL文作成
+    $sql = 'SELECT
+            m.id,
+            m.pic1,
+            m.pic2,
+            m.pic3,
+            m.pic4,
+            m.shooting_date,
+            m.memory_explanation,
+            m.area,
+            m.memory_title,
+            m.favorit_count,
+            u.name
+            FROM memories AS m
+            INNER JOIN users AS u ON m.user_id = u.id
+            WHERE m.id = :m_id AND
+            m.delete_flg = 0';
+
+    $data = array(':m_id' => $m_id);
+    // クエリ実行
+    $stmt = queryPost($dbh, $sql, $data);
+
+    if($stmt){
+    $rst['memory_data'] = $stmt->fetch(PDO::FETCH_ASSOC);
+    }else{
+      return false;
+    }
+    //カテゴリー情報取得
+    $sql = 'SELECT
+            c.name
+            FROM memories AS m
+            INNER JOIN users AS u ON m.user_id = u.id
+            INNER JOIN categories AS c ON FIND_IN_SET(c.id,m.category_id)
+            WHERE m.id = :m_id AND
+            m.delete_flg = 0';
+
+    $stmt = queryPost($dbh, $sql, $data);
+
+    if($stmt){
+      $rst['category_data'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }else{
+      return false;
+    }
+
+    //キャラクター情報取得
+    $sql = 'SELECT
+            ch.name
+            FROM memories AS m
+            INNER JOIN users AS u ON m.user_id = u.id
+            INNER JOIN characters AS ch ON FIND_IN_SET(ch.id,m.character_id)
+            WHERE m.id = :m_id AND
+            m.delete_flg = 0';
+
+    $stmt = queryPost($dbh, $sql, $data);
+
+    if($stmt){
+      $rst['character_data'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }else{
+      return false;
+    }
+
+    return $rst;
+
   } catch (Exception $e) {
     error_log('エラー発生:' . $e->getMessage());
   }
