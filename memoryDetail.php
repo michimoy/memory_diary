@@ -61,95 +61,12 @@ debug('画面表示処理終了 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 $siteTitle = '思い出詳細';
 require('head.php');
 ?>
+<style>
+
+</style>
 
   <body class="page-memoryDetail page-1colum">
-    <style>
-      .badge{
-        padding: 5px 10px;
-        color: white;
-        background: #7acee6;
-        margin-right: 10px;
-        font-size: 16px;
-        vertical-align: middle;
-        position: relative;
-        top: -4px;
-      }
-      #main .memory_infomation{
-        font-size: 15px;
-        padding: 10px 0;
-      }
-      .memory-img-container{
-        overflow: hidden;
-      }
-      .memory-img-container img{
-        width: 100%;
-      }
-      .memory-img-container .img-main{
-        width: 750px;
-        float: left;
-        padding-right: 15px;
-        box-sizing: border-box;
-      }
-      .memory-img-container .img-sub{
-        width: 230px;
-        float: left;
-        background: #f6f5f4;
-        padding: 15px;
-        box-sizing: border-box;
-      }
-      .memory-img-container .img-sub:hover{
-        cursor: pointer;
-      }
-      .memory-img-container .img-sub img{
-        margin-bottom: 15px;
-      }
-      .memory-img-container .img-sub img:last-child{
-        margin-bottom: 0;
-      }
-      .memory-detail{
-        background: #f6f5f4;
-        padding: 15px;
-        margin-top: 15px;
-        min-height: 150px;
-      }
-      .memory-buy{
-        overflow: hidden;
-        margin-top: 15px;
-        margin-bottom: 50px;
-        height: 50px;
-        line-height: 50px;
-      }
-      .memory-buy .item-left{
-        float: left;
-      }
-      .memory-buy .item-right{
-        float: right;
-      }
-      .memory-buy .price{
-        font-size: 32px;
-        margin-right: 30px;
-      }
-      .memory-buy .btn{
-        border: none;
-        font-size: 18px;
-        padding: 10px 30px;
-      }
-      .memory-buy .btn:hover{
-        cursor: pointer;
-      }
-      /*お気に入りアイコン*/
-      .icn-like{
-        float:right;
-        color: #ddd;
-      }
-      .icn-like:hover{
-        cursor: pointer;
-      }
-      .icn-like.active{
-        float:right;
-        color: #fe8a8b;
-      }
-    </style>
+
 
     <!-- ヘッダー -->
     <?php
@@ -158,23 +75,26 @@ require('head.php');
 
     <!-- メインコンテンツ -->
     <div id="contents" class="site-width">
-
       <!-- Main -->
       <section id="main" >
         <div class="memory_infomation">
-          <h3>カテゴリー</h3>
+          <h2>カテゴリー</h2>
           <?php foreach ($viewMemoryData['category_data'] as $key => $value): ?>
               <span class="badge"><?php echo sanitize($value['name']); ?></span>
           <?php endforeach; ?>
-          <h3>登場人物</h3>
+          <h2>登場人物</h2>
           <?php foreach ($viewMemoryData['character_data'] as $key => $value): ?>
               <span class="badge"><?php echo sanitize($value['name']); ?></span>
           <?php endforeach; ?>
           <div class="memory_title">
+            <h2>
+              <i class="fa fa-heart icn-like js-click-like <?php if(isMemoryFavorit($_SESSION['user_id'], sanitize($viewMemoryData['memory_data']['id']))){ echo 'active'; } ?>" aria-hidden="true" data-memoryid="<?php echo sanitize($viewMemoryData['memory_data']['id']); ?>" >
+                <span><?php echo getMemoryFavoritCount($m_id); ?></span>
+              </i>
+            </h2>
             <h2 style="text-align:center;"><?php echo sanitize($viewMemoryData['memory_data']['memory_title']);  ?></h2>
           </div>
         </div>
-
         <div class="memory-img-container">
           <div class="img-main">
             <img src="<?php echo showImg(sanitize($viewMemoryData['memory_data']['pic1'])); ?>" alt="aa" id="js-switch-img-main">
@@ -189,21 +109,12 @@ require('head.php');
         <div class="memory-detail">
           <p><?php echo sanitize($viewMemoryData['memory_data']['memory_explanation']); ?></p>
         </div>
-        <div class="memory-buy">
-          <div class="item-left">
-            <a href="index.php<?php echo appendGetParam(array('p_id')); ?>">&lt; 商品一覧に戻る</a>
-          </div>
-          <form action="" method="post"> <!-- formタグを追加し、ボタンをinputに変更し、style追加 -->
-            <div class="item-right">
-              <input type="submit" value="買う!" name="submit" class="btn btn-primary" style="margin-top:0;">
-            </div>
-          </form>
-          <div class="item-right">
-            <p class="price">¥<?php echo sanitize(number_format($viewMemoryData['price'])); ?>-</p>
-          </div>
-        </div>
-      </section>
 
+          <div class="item-left">
+            <a href="index.php<?php echo appendGetParam(array('m_id')); ?>">&lt; 思い出一覧に戻る</a>
+          </div>
+
+      </section>
     </div>
 
     <!-- footer -->

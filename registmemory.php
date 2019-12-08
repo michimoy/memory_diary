@@ -348,7 +348,6 @@ require('head.php');
           </div>
 
           <div class="btn-container">
-
             <input type="submit" class="btn btn-mid" value="<?php echo $edit_flg ? "修正する" : "記録する";?>">
           </div>
         </form>

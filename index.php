@@ -27,8 +27,7 @@ $character = (!empty($_GET['ch_id'])) ? $_GET['ch_id'] : '';
 $kerword = (!empty($_GET['kerword'])) ? $_GET['kerword'] : '';
 // ソート順
 $sort = (!empty($_GET['sort'])) ? $_GET['sort'] : '';
-// $arr_del_key : 付与から取り除きたいGETパラメータのキー
-$arr_del_key = array('ca_id','ch_id','kerword','sort');
+
 // DBからカテゴリデータを取得
 $dbCategoryData = getCategory();
 // DBから登場人物データを取得
@@ -39,6 +38,7 @@ $listSpan = 15;
 $currentMinNum = (($currentPageNum-1)*$listSpan);//1ページ目なら(1-1)*20 = 0 、 ２ページ目なら(2-1)*20 = 20
 // DBから思い出データを取得
 $memoryData = getMemoriesList($currentMinNum,$category,$character,$kerword,$sort,$listSpan);
+
 ?>
 <body class="page-home page-2colum">
 <?php
@@ -99,20 +99,27 @@ require('header.php');
       <?php
         foreach ($memoryData['data'] as $key => $val) {
       ?>
-       <a href="memoryDetail.php<?php echo (!empty(appendGetParam($arr_del_key))) ? appendGetParam($arr_del_key).'&m_id='.$val['id'] : '?m_id='.$val['id']; ?>" class="panel">
-         <div class="panel-body">
-           <p class="panel-title" style="text-align:center;"><?php echo sanitize($val['memory_title']); ?></p>
-           <p class="panel-title" style="text-align:right;"><?php echo sanitize($val['name']); ?></p>
+         <div class="panel">
+            <p class="panel-title" style="text-align:center;"><?php echo sanitize($val['memory_title']); ?></p>
+            <a href="profDetail.php<?php echo (!empty(appendGetParam())) ? appendGetParam().'&u_id='.$val['user_id'] : '?u_id='.$val['user_id']; ?>">
+              <p class="panel-auther" style="text-align:right;"><?php echo sanitize($val['name']); ?></p>
+            </a>
+           <a href="memoryDetail.php<?php echo (!empty(appendGetParam())) ? appendGetParam().'&m_id='.$val['id'] : '?m_id='.$val['id']; ?>" class="panel">
+           <div class="panel-head">
+             <img src="<?php echo showImg($val['pic1']); ?>">
+           </div>
+           </a>
+             <i class="fa fa-heart icn-like js-click-like <?php if(isMemoryFavorit($_SESSION['user_id'], sanitize($val['id']))){ echo 'active'; } ?>" aria-hidden="true" data-memoryid="<?php echo sanitize($val['id']); ?>" >
+               <span><?php echo getMemoryFavoritCount($val['id']); ?></span>
+             </i>
          </div>
-         <div class="panel-head">
-           <img src="<?php echo showImg($val['pic1']); ?>">
-         </div>
-       </a>
       <?php
         }
        ?>
     </div>
+    <?php pagination($currentPageNum, $memoryData['total_page']); ?>
   </section>
+
 </div>
 <!-- footer -->
 <?php

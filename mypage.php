@@ -23,7 +23,7 @@ $listSpan = 10;
 // 現在の表示レコード先頭を算出
 $currentMinNum = (($currentPageNum-1)*$listSpan);//1ページ目なら(1-1)*20 = 0 、 ２ページ目なら(2-1)*20 = 20
 // DBから思い出データを取得
-$memoryData = getMymemory($u_id,$currentMinNum);
+$memoryData = getMymemory($u_id,$currentMinNum,$listSpan);
 
 debug('取得した思い出データ：'.print_r($memoryData,true));
 debug('画面表示処理終了 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
@@ -88,13 +88,13 @@ require('header.php')
               </a>
             </div>
           </div>
-          <h3  style="text-align:right; font-size:14px;"><i class="fa fa-heart" style="color:red;"><?php echo $value['favorit_count']; ?></i></h3>
           <nav>
             <span class="bb-current"></span>
             <span></span>
             <span></span>
             <span></span>
           </nav>
+          <h3  style="text-align:right; font-size:14px;"><i class="fa fa-heart" style="color:red;"><?php echo $value['favorit_count']; ?></i></h3>
         </li>
         <?php
                 }

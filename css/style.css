@@ -113,10 +113,6 @@ footer a {
   box-sizing: border-box;
 }
 
-.page-2colum #sidebar {
-    margin: 0 0 0 20px;
-}
-
 #main {
   min-height: 600px;
   float: left;
@@ -148,10 +144,10 @@ section h1.title {
   float:left;
   width: 200px;
   min-height: 600px;
+  margin-right: 20px;
   background: #f6f5f4;
   padding: 15px;
   box-sizing: border-box;
-
 }
 
 .page-2colum #sidebar > a {
@@ -316,6 +312,47 @@ label.err input,label.err select,label.err textarea{
 }
 
 /*========================================
+  タグ表示
+========================================*/
+
+.badge{
+  padding: 5px 10px;
+  color: white;
+  background: #7acee6;
+  margin-right: 10px;
+  font-size: 16px;
+  vertical-align: middle;
+  position: relative;
+  top: -4px;
+}
+
+#main .memory_infomation{
+  font-size: 15px;
+  padding: 10px 0;
+}
+
+#main .memory_infomation h2{
+  margin-bottom:10px;
+}
+
+/*========================================
+  お気に入り
+========================================*/
+.icn-like{
+  float:right;
+  color: #ddd;
+  font-size: 25px;
+}
+.icn-like:hover{
+  cursor: pointer;
+}
+.icn-like.active{
+  float:right;
+  color: #fe8a8b;
+}
+
+
+/*========================================
   ページネーション
 ========================================*/
 
@@ -363,22 +400,80 @@ label.err input,label.err select,label.err textarea{
 }
 
 /*========================================
-  パネルリスト
+  画像表示
 ========================================*/
+
+.memory-img-container{
+  overflow: hidden;
+}
+
+.memory-img-container img{
+  width: 100%;
+}
+
+.memory-img-container .img-main{
+  width: 750px;
+  float: left;
+  padding-right: 15px;
+  box-sizing: border-box;
+}
+
+.memory-img-container .img-sub{
+  width: 230px;
+  float: left;
+  background: #f6f5f4;
+  padding: 15px;
+  box-sizing: border-box;
+}
+
+.memory-img-container .img-sub:hover{
+  cursor: pointer;
+}
+
+.memory-img-container .img-sub img{
+  margin-bottom: 15px;
+}
+
+.memory-img-container .img-sub img:last-child{
+  margin-bottom: 0;
+}
+
+.memory-detail{
+  background: #f6f5f4;
+  padding: 15px;
+  margin-top: 15px;
+  min-height: 150px;
+}
+
+.panel-list{
+  overflow: hidden;
+}
 
 .panel-list > .panel{
   float: left;
   box-sizing: border-box;
   width: 30%;
-  max-height: 180px;
+  max-height: 200px;
   padding-right: 15px;
   margin-bottom: 15px;
 
 }
+
 .panel-list > .panel img {
     width: 100%;
     height: 140px;
+}
 
+.panel-list > .panel a {
+    color:blue;
+}
+
+.panel-list > .panel .panel-title{
+    color:blue;
+}
+
+.panel-list > .panel-body{
+  width:100%;
 }
 
 /*========================================

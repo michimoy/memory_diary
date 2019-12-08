@@ -238,6 +238,29 @@ function getUser($u_id){
   }
 
 }
+
+function getOtherUser($u_id){
+  debug('他の人のユーザ情報を取得します');
+  //例外処理
+  try{
+    //DBへ接続
+    $dbh = dbConnect();
+    //クエリ作成
+    $sql  = 'SELECT id, name, age, sex, pic, my_comment FROM users WHERE id = :u_id AND delete_flg = 0';
+    $data = array(':u_id' => $u_id);
+    //クエリ実行
+    $stmt = queryPost($dbh,$sql,$data);
+    // クエリ結果のデータを１レコード返却
+    if ($stmt) {
+      return $stmt->fetch(PDO::FETCH_ASSOC);
+    }else{
+      return false;
+    }
+
+  }catch(Exception $e) {
+    error_log('エラー発生:' . $e->getMessage());
+  }
+}
 // サニタイズ
 function sanitize($str){
   if (is_array($str)) {
@@ -280,6 +303,32 @@ global $dbFormData;
     if(isset($method[$str])){
       return sanitize($method[$str]);
     }
+  }
+}
+
+//================================
+// ログイン認証
+//================================
+function isLogin(){
+  // ログインしている場合
+  if( !empty($_SESSION['login_date']) ){
+    debug('ログイン済みユーザーです。');
+
+    // 現在日時が最終ログイン日時＋有効期限を超えていた場合
+    if( ($_SESSION['login_date'] + $_SESSION['login_limit']) < time()){
+      debug('ログイン有効期限オーバーです。');
+
+      // セッションを削除（ログアウトする）
+      session_destroy();
+      return false;
+    }else{
+      debug('ログイン有効期限以内です。');
+      return true;
+    }
+
+  }else{
+    debug('未ログインユーザーです。');
+    return false;
   }
 }
 
@@ -432,25 +481,9 @@ function getMyMemory($u_id,$currentMinNum,$span = 10){
     //DBへ接続
     $dbh = dbConnect();
     // 件数用のSQL文作成
-    $sql = 'SELECT id FROM memories';
-    if(!empty($category)) $sql .= ' WHERE category_id = '.$category;
-    if(!empty($sort)){
-      switch($sort){
-        case 1:
-          $sql .= ' ORDER BY shooting_date ASC';
-          break;
-        case 2:
-          $sql .= ' ORDER BY shooting_date DESC';
-          break;
-        case 3:
-          $sql .= ' ORDER BY favorit_count ASC';
-          break;
-        case 4:
-          $sql .= ' ORDER BY favorit_count DESC';
-          break;
-      }
-    }
-    $data = array();
+    $sql = 'SELECT id FROM memories WHERE user_id = :u_id';
+
+    $data = array(':u_id'=>$u_id);
     // クエリ実行
     $stmt = queryPost($dbh, $sql, $data);
 
@@ -514,6 +547,7 @@ function getMemoriesList($currentMinNum,$category,$character,$kerword,$sort,$spa
             m.shooting_date,
             m.memory_explanation,
             m.area,
+            m.user_id,
             m.memory_title,
             m.favorit_count,
             u.name
@@ -562,15 +596,26 @@ function getMemoriesList($currentMinNum,$category,$character,$kerword,$sort,$spa
       }
     }
 
-    $sql .= ' LIMIT '.$span.' OFFSET '.$currentMinNum;
     $data = array();
+
     //クエリ実行
     $stmt = queryPost($dbh,$sql,$data);
+
     if ($stmt) {
       //総レコード数
       $rst['total'] = $stmt->rowCount();
       //総ページ数
       $rst['total_page'] = ceil($rst['total']/$span);
+    }else{
+      return false;
+    }
+
+    $sql .= ' LIMIT '.$span.' OFFSET '.$currentMinNum;
+
+    //クエリ実行
+    $stmt = queryPost($dbh,$sql,$data);
+
+    if ($stmt) {
       // クエリ結果のデータを全レコードを格納
       $rst['data'] = $stmt->fetchAll();
       return $rst;
@@ -581,7 +626,28 @@ function getMemoriesList($currentMinNum,$category,$character,$kerword,$sort,$spa
     error_log('エラー発生:' . $e->getMessage());
   }
 }
+function getMemoryFavoritCount($m_id){
+  debug('お気に入り件数を取得します。');
+  debug('思い出ID：'.$m_id);
+  //例外処理
+  try {
+    // DBへ接続
+    $dbh  = dbConnect();
+    // SQL文作成
+    $sql  = 'SELECT favorit_count FROM memories WHERE id = :m_id AND delete_flg = 0';
+    $data = array(':m_id' => $m_id);
+    // クエリ実行
+    $stmt = queryPost($dbh, $sql, $data);
 
+    if($stmt){
+      return $stmt->fetchColumn();;
+    }else{
+      return 0;
+    }
+  } catch (Exception $e) {
+    error_log('エラー発生:' . $e->getMessage());
+  }
+}
 function getMemoryOne($m_id){
   debug('思い出情報を取得します。');
   debug('思い出ID：'.$m_id);
@@ -612,7 +678,7 @@ function getMemoryOne($m_id){
     $stmt = queryPost($dbh, $sql, $data);
 
     if($stmt){
-    $rst['memory_data'] = $stmt->fetch(PDO::FETCH_ASSOC);
+      $rst['memory_data'] = $stmt->fetch(PDO::FETCH_ASSOC);
     }else{
       return false;
     }
@@ -657,20 +723,54 @@ function getMemoryOne($m_id){
   }
 }
 
+function isMemoryFavorit($u_id, $m_id){
+  debug('お気に入り情報があるか確認します。');
+  debug('ユーザーID：'.$u_id);
+  debug('思い出ID：'.$m_id);
+  //例外処理
+  try {
+    // DBへ接続
+    $dbh = dbConnect();
+    // SQL文作成
+    $sql = 'SELECT * FROM memory_like WHERE memory_id = :m_id AND user_id = :u_id';
+    $data = array(':u_id' => $u_id, ':m_id' => $m_id);
+    // クエリ実行
+    $stmt = queryPost($dbh, $sql, $data);
+
+    if($stmt->rowCount()){
+      debug('お気に入りです');
+      return true;
+    }else{
+      debug('特に気に入ってません');
+      return false;
+    }
+
+  } catch (Exception $e) {
+    error_log('エラー発生:' . $e->getMessage());
+  }
+}
+
 //GETパラメータ付与
 // $del_key : 付与から取り除きたいGETパラメータのキー
 function appendGetParam($arr_del_key = array()){
   if(!empty($_GET)){
     $str = '?';
     foreach($_GET as $key => $val){
-      if(!in_array($key,$arr_del_key,true)){ //取り除きたいパラメータじゃない場合にurlにくっつけるパラメータを生成
-        $str .= $key.'='.$val.'&';
+      if (is_array($val)) {
+        foreach ($val as $arraykey => $arrayvalue) {
+          $str .= $key.'[]='.$arrayvalue.'&';
+        }
+      }else{
+        if(!in_array($key,$arr_del_key,true)) { //取り除きたいパラメータじゃない場合にurlにくっつけるパラメータを生成
+          $str .= $key.'='.$val.'&';
+        }
       }
     }
     $str = mb_substr($str, 0, -1, "UTF-8");
     return $str;
   }
 }
+
 
 //ページング
 // $currentPageNum : 現在のページ数

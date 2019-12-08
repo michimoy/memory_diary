@@ -121,6 +121,38 @@
       fileReader.readAsDataURL(file);
     });
 
+    // 画像切替
+    var $switchImgSubs = $('.js-switch-img-sub'),
+        $switchImgMain = $('#js-switch-img-main');
+    $switchImgSubs.on('click',function(e){
+      $switchImgMain.attr('src',$(this).attr('src'));
+    });
+
+    // お気に入り登録・削除
+    var $favoritMemory,
+        favoritMemoryId;
+    $favoritMemory = $('.js-click-like') || null; //nullというのはnull値という値で、「変数の中身は空ですよ」と明示するためにつかう値
+    favoritMemoryId = $favoritMemory.data('memoryid') || null;
+    // 数値の0はfalseと判定されてしまう。memory_idが0の場合もありえるので、0もtrueとする場合にはundefinedとnullを判定する
+    if(favoritMemoryId !== undefined && favoritMemoryId !== null){
+      $favoritMemory.on('click',function(){
+        var $this = $(this);
+        $.ajax({
+          type: "POST",
+          url: "ajaxMemoryFavorit.php",
+          data: { memoryId : favoritMemoryId}
+        }).done(function( data ){
+          console.log('Ajax Success');
+          // いいねの総数を表示
+          $this.children('span').html(data);
+          // クラス属性をtoggleでつけ外しする
+          $this.toggleClass('active');
+        }).fail(function( msg ) {
+          console.log('Ajax Error');
+        });
+      });
+    }
+
   });
 </script>
 
