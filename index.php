@@ -83,8 +83,6 @@ require('header.php');
           <option value="0" <?php if(getFormData('sort',true) == 0 ){ echo 'selected'; } ?> >選択してください</option>
           <option value="1" <?php if(getFormData('sort',true) == 1 ){ echo 'selected'; } ?> >撮影日が古い順</option>
           <option value="2" <?php if(getFormData('sort',true) == 2 ){ echo 'selected'; } ?> >撮影日が新しい順</option>
-          <option value="3" <?php if(getFormData('sort',true) == 3 ){ echo 'selected'; } ?> >いいねが少ない順</option>
-          <option value="4" <?php if(getFormData('sort',true) == 4 ){ echo 'selected'; } ?> >いいねが多い順</option>
         </select>
       </div>
       <div class="search">
@@ -97,24 +95,24 @@ require('header.php');
   <section id="main">
     <div class="panel-list">
       <?php
-        foreach ($memoryData['data'] as $key => $val) {
+        foreach ($memoryData['data'] as $key => $val){
       ?>
          <div class="panel">
-            <p class="panel-title" style="text-align:center;"><?php echo sanitize($val['memory_title']); ?></p>
-            <a href="profDetail.php<?php echo (!empty(appendGetParam())) ? appendGetParam().'&u_id='.$val['user_id'] : '?u_id='.$val['user_id']; ?>">
-              <p class="panel-auther" style="text-align:right;"><?php echo sanitize($val['name']); ?></p>
-            </a>
-           <a href="memoryDetail.php<?php echo (!empty(appendGetParam())) ? appendGetParam().'&m_id='.$val['id'] : '?m_id='.$val['id']; ?>" class="panel">
-           <div class="panel-head">
-             <img src="<?php echo showImg($val['pic1']); ?>">
-           </div>
+           <p class="panel-title" style="text-align:center;"><?php echo sanitize($val['memory_title']); ?></p>
+           <a href="profDetail.php<?php echo (!empty(appendGetParam())) ? appendGetParam().'&u_id='.$val['user_id'] : '?u_id='.$val['user_id']; ?>">
+             <p class="panel-auther" style="text-align:right;"><?php echo sanitize($val['name']); ?></p>
            </a>
-             <i class="fa fa-heart icn-like js-click-like <?php if(isMemoryFavorit($_SESSION['user_id'], sanitize($val['id']))){ echo 'active'; } ?>" aria-hidden="true" data-memoryid="<?php echo sanitize($val['id']); ?>" >
-               <span><?php echo getMemoryFavoritCount($val['id']); ?></span>
-             </i>
+           <a href="memoryDetail.php<?php echo (!empty(appendGetParam())) ? appendGetParam().'&m_id='.$val['id'] : '?m_id='.$val['id']; ?>" class="panel">
+             <div class="panel-head">
+               <img src="<?php echo showImg($val['pic1']); ?>">
+             </div>
+           </a>
+           <i class="fa fa-heart icn-like js-click-like <?php if(isMemoryFavorit($_SESSION['user_id'], sanitize($val['id']))){ echo 'active'; } ?>" aria-hidden="true" data-memoryid="<?php echo sanitize($val['id']); ?>" >
+             <span><?php echo getMemoryFavoritCount($val['id']); ?></span>
+           </i>
          </div>
       <?php
-        }
+      }
        ?>
     </div>
     <?php pagination($currentPageNum, $memoryData['total_page']); ?>

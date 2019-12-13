@@ -30,11 +30,12 @@ if (!empty($_POST)) {
   $name = $_POST['name'];
   $age = $_POST['age'];
   $email = $_POST['email'];
-  $my_comment = $_POST['my_comment'];
+  $my_comment = $str = str_replace(array(" ", "　","\r", "\n"), "", $_POST['my_comment']);
   //画像をアップロードし、パスを格納
-  $pic = ( !empty($_FILES['pic']['name']) ) ? uploadImg($_FILES['pic'],'pic') : '';
-
   // 画像をPOSTしてない（登録していない）が既にDBに登録されている場合、DBのパスを入れる（POSTには反映されないので）
+  $background_img = ( !empty($_FILES['background_img']['name']) ) ? uploadImg($_FILES['background_img'],'background_img') : '';
+  $background_img = ( empty($background_img) && !empty($dbFormData['background_img']) ) ? $dbFormData['background_img'] : $background_img;
+  $pic = ( !empty($_FILES['pic']['name']) ) ? uploadImg($_FILES['pic'],'pic') : '';
   $pic = ( empty($pic) && !empty($dbFormData['pic']) ) ? $dbFormData['pic'] : $pic;
 
   //DBの情報と入力情報が異なる場合にバリデーションを行う
@@ -71,8 +72,8 @@ if (!empty($_POST)) {
       // DBへ接続
       $dbh = dbConnect();
       // SQL文作成
-      $sql = 'UPDATE users  SET name = :name, age = :age, email = :email, pic = :pic ,my_comment = :my_comment WHERE id = :u_id';
-      $data = array(':name' => $name , ':age' => $age, ':email' => $email, ':pic' => $pic,':my_comment' => $my_comment,':u_id' => $dbFormData['id']);
+      $sql = 'UPDATE users  SET name = :name, age = :age, email = :email, background_img = :background_img,pic = :pic,my_comment = :my_comment WHERE id = :u_id';
+      $data = array(':name' => $name , ':age' => $age, ':email' => $email,':background_img' => $background_img,':pic' => $pic,':my_comment' => $my_comment,':u_id' => $dbFormData['id']);
       // クエリ実行
       $stmt = queryPost($dbh, $sql, $data);
 
@@ -110,6 +111,18 @@ require('head.php');
           <div class="area-msg">
             <?php
             if(!empty($err_msg['common'])) echo $err_msg['common'];
+            ?>
+          </div>
+            背景画像
+          <label class="area-drop <?php if(!empty($err_msg['background_img'])) echo 'err'; ?>"
+            <input type="hidden" name="MAX_FILE_SIZE" value="3145728">
+            <input type="file" name="background_img" class="input-file">
+            <img src="<?php echo getFormData('background_img'); ?>" alt="" class="prev-img" style="<?php if(empty(getFormData('background_img'))) echo 'display:none;' ?>">
+            ドラッグ＆ドロップ
+          </label>
+          <div class="area-msg">
+            <?php
+            if(!empty($err_msg['background_img'])) echo $err_msg['background_img'];
             ?>
           </div>
             プロフィール画像
@@ -162,7 +175,7 @@ require('head.php');
           </div>
           <p class="counter-text"><span id="js-count-view">0</span>/500</p>
           <div class="btn-container">
-            <input type="submit" class="btn btn-mid" value="変更する">
+            <button type="button" name="button" class="btn btn-mid">変更する</button>  
           </div>
         </form>
       </div>

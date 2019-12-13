@@ -176,7 +176,7 @@ if (!empty($_POST)) {
 $siteTitle = (!$edit_flg) ? '思い出を登録' : '思い出を修正';
 require('head.php');
 ?>
-<body class = "page-2colum">
+<body class = "page-2colum page-registmemory">
   <?php
   require('header.php');
   ?>

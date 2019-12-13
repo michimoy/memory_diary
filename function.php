@@ -246,7 +246,7 @@ function getOtherUser($u_id){
     //DBへ接続
     $dbh = dbConnect();
     //クエリ作成
-    $sql  = 'SELECT id, name, age, sex, pic, my_comment FROM users WHERE id = :u_id AND delete_flg = 0';
+    $sql  = 'SELECT id, name, age, sex, background_img,pic, my_comment FROM users WHERE id = :u_id AND delete_flg = 0';
     $data = array(':u_id' => $u_id);
     //クエリ実行
     $stmt = queryPost($dbh,$sql,$data);
@@ -506,7 +506,6 @@ function getMyMemory($u_id,$currentMinNum,$span = 10){
             m.memory_explanation,
             m.area,
             m.memory_title,
-            m.favorit_count,
             u.name
             FROM memories as m
             INNER JOIN users as u
@@ -549,7 +548,6 @@ function getMemoriesList($currentMinNum,$category,$character,$kerword,$sort,$spa
             m.area,
             m.user_id,
             m.memory_title,
-            m.favorit_count,
             u.name
             FROM memories as m
             INNER JOIN users as u
@@ -586,12 +584,6 @@ function getMemoriesList($currentMinNum,$category,$character,$kerword,$sort,$spa
           break;
         case 2:
           $sql .= " ORDER BY shooting_date DESC";
-          break;
-        case 3:
-          $sql .= " ORDER BY favorit_count ASC";
-          break;
-        case 4:
-          $sql .= " ORDER BY favorit_count DESC";
           break;
       }
     }
@@ -634,13 +626,13 @@ function getMemoryFavoritCount($m_id){
     // DBへ接続
     $dbh  = dbConnect();
     // SQL文作成
-    $sql  = 'SELECT favorit_count FROM memories WHERE id = :m_id AND delete_flg = 0';
+    $sql  = 'SELECT * FROM memory_favorit WHERE memory_id = :m_id AND delete_flg = 0';
     $data = array(':m_id' => $m_id);
     // クエリ実行
     $stmt = queryPost($dbh, $sql, $data);
 
     if($stmt){
-      return $stmt->fetchColumn();;
+      return $stmt->rowCount();
     }else{
       return 0;
     }
@@ -648,6 +640,32 @@ function getMemoryFavoritCount($m_id){
     error_log('エラー発生:' . $e->getMessage());
   }
 }
+function getOtherMemoryCount($u_id){
+  debug('他の人の思い出情報を取得します。');
+  debug('ユーザID：'.$u_id);
+  //例外処理
+  try {
+    // DBへ接続
+    $dbh = dbConnect();
+    // SQL文作成
+    $sql = 'SELECT count(*) AS memory_count
+            FROM memories
+            WHERE user_id = :u_id AND delete_flg = 0';
+    $data = array(':u_id' => $u_id);
+    // クエリ実行
+    $stmt = queryPost($dbh, $sql, $data);
+
+    if ($stmt) {
+      return  $stmt->fetch();
+    }else{
+      return false;
+    }
+
+  } catch (Exception $e) {
+    error_log('エラー発生:' . $e->getMessage());
+  }
+}
+
 function getMemoryOne($m_id){
   debug('思い出情報を取得します。');
   debug('思い出ID：'.$m_id);
@@ -666,7 +684,6 @@ function getMemoryOne($m_id){
             m.memory_explanation,
             m.area,
             m.memory_title,
-            m.favorit_count,
             u.name
             FROM memories AS m
             INNER JOIN users AS u ON m.user_id = u.id
@@ -679,6 +696,7 @@ function getMemoryOne($m_id){
 
     if($stmt){
       $rst['memory_data'] = $stmt->fetch(PDO::FETCH_ASSOC);
+      $rst['memory_count']  = $stmt->fetchcolumn();
     }else{
       return false;
     }
@@ -732,7 +750,7 @@ function isMemoryFavorit($u_id, $m_id){
     // DBへ接続
     $dbh = dbConnect();
     // SQL文作成
-    $sql = 'SELECT * FROM memory_like WHERE memory_id = :m_id AND user_id = :u_id';
+    $sql = 'SELECT * FROM memory_favorit WHERE memory_id = :m_id AND user_id = :u_id AND delete_flg = 0';
     $data = array(':u_id' => $u_id, ':m_id' => $m_id);
     // クエリ実行
     $stmt = queryPost($dbh, $sql, $data);

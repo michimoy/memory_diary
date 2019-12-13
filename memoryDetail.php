@@ -97,7 +97,7 @@ require('head.php');
         </div>
         <div class="memory-img-container">
           <div class="img-main">
-            <img src="<?php echo showImg(sanitize($viewMemoryData['memory_data']['pic1'])); ?>" alt="aa" id="js-switch-img-main">
+            <img src="<?php echo showImg(sanitize($viewMemoryData['memory_data']['pic1'])); ?>" alt="" id="js-switch-img-main">
           </div>
           <div class="img-sub">
             <img src="<?php echo showImg(sanitize($viewMemoryData['memory_data']['pic1'])); ?>" alt="" class="js-switch-img-sub">
@@ -109,11 +109,10 @@ require('head.php');
         <div class="memory-detail">
           <p><?php echo sanitize($viewMemoryData['memory_data']['memory_explanation']); ?></p>
         </div>
-
-          <div class="item-left">
-            <a href="index.php<?php echo appendGetParam(array('m_id')); ?>">&lt; 思い出一覧に戻る</a>
-          </div>
-
+        <div class="button-area">
+          <a href="index.php<?php echo appendGetParam(array('m_id')); ?>">&lt; 思い出一覧に戻る</a>
+          <button type="button" name="button" class="btn-flat-border" data-memoryid="<?php echo sanitize($viewMemoryData['memory_data']['id']); ?>">削除する</button>
+        </div>
       </section>
     </div>
 

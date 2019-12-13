@@ -1,5 +1,5 @@
 <footer id="footer">
-  Copyright Task Manager. All Rights Reserved.
+  Copyright Memory diary. All Rights Reserved.
 </footer>
 <script src="js/jquery-3.4.1.min.js"></script>
 <script src="js/jquery-ui.min.js"></script>
@@ -132,11 +132,10 @@
     var $favoritMemory,
         favoritMemoryId;
     $favoritMemory = $('.js-click-like') || null; //nullというのはnull値という値で、「変数の中身は空ですよ」と明示するためにつかう値
-    favoritMemoryId = $favoritMemory.data('memoryid') || null;
-    // 数値の0はfalseと判定されてしまう。memory_idが0の場合もありえるので、0もtrueとする場合にはundefinedとnullを判定する
-    if(favoritMemoryId !== undefined && favoritMemoryId !== null){
+
       $favoritMemory.on('click',function(){
         var $this = $(this);
+        favoritMemoryId = $this.data('memoryid') || null;
         $.ajax({
           type: "POST",
           url: "ajaxMemoryFavorit.php",
@@ -151,7 +150,31 @@
           console.log('Ajax Error');
         });
       });
-    }
+
+    // 削除ボタン制御
+    var $deleteButton = $('.btn-flat-border');
+
+      $deleteButton.on('click',function(){
+        var $this = $(this);
+        memoryId= $this.data('memoryid') || null;
+        var responce = confirm("思い出を削除しますか？");
+          if (responce) {
+            $.ajax({
+                type: "POST",
+                url: "ajaxMemoryDelete.php",
+                data: { memoryId : memoryId}
+            }).done(function( $result ){
+              alert($result+"の削除に成功しました。");
+              location.href = 'index.php';
+            }).fail(function( msg ){
+              alert(msg);
+            });
+
+          }else{
+            alert("削除を中断しました");
+          }
+      })
+
 
   });
 </script>

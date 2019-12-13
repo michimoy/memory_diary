@@ -106,9 +106,12 @@ footer a {
 
 .page-2colum #main {
   width: 760px;
+
 }
 
-.page-profEdit #main,.page-registmemory #main{
+.page-profEdit #main,.page-registmemory #main,{
+  width: 750px;
+  margin-right: 10px;
   border: 5px solid #f1f1f1;
   box-sizing: border-box;
 }
@@ -231,7 +234,8 @@ label.err input,label.err select,label.err textarea{
 
 .form .area-drop{
   margin-bottom: 15px;
-  line-height: 250px;
+  min-height: 450px;
+  line-height: 450px;
   background: #f6f5f4;
   color: #ccc;
   text-align: center;
@@ -276,11 +280,6 @@ label.err input,label.err select,label.err textarea{
 
 .page-1colum .form-container {
   margin: 80px auto;
-}
-
-.page-2colum .form-container {
-  margin: 80px auto;
-
 }
 
 .form {
@@ -400,6 +399,84 @@ label.err input,label.err select,label.err textarea{
 }
 
 /*========================================
+  プロフ
+========================================*/
+
+
+.profcard-container{
+  width:60%;
+  min-height: 600px;
+  border: solid 5px;
+  box-sizing: border-box;
+  margin-right: auto;
+  margin-left: auto;
+  position: relative;
+}
+
+.profcard-container > .background-img{
+  width: 100%;
+  height: 300px;
+}
+
+.profcard-container > .background-img img{
+  width: 100%;
+  height: 300px;
+}
+
+.profcard-container > .prof-img{
+  height: 200px;
+  width:100%;
+  bottom: 50%;
+  margin-top:-100px;
+  text-align:center;
+}
+
+.profcard-container > .prof-img img{
+  width: 50%;
+  height: 200px;
+  border-radius: 50%;
+}
+
+.profcard-container h2{
+  margin-top:10px;
+}
+
+.profcard-container > .profcard-my_comment{
+  min-height:100px;
+  text-align: center;
+  margin-top:10px;
+}
+
+.profcard-container > .profcard-countarea{
+  min-height: 140px;
+  line-height: 140px;
+}
+
+/*========================================
+  ボタン系統
+========================================*/
+.btn-flat-border {
+  text-decoration: none;
+  color: #67c5ff;
+  border: solid 2px #67c5ff;
+  border-radius: 3px;
+  transition: 2s;
+  float: right;
+}
+
+.btn-flat-border:hover {
+  background: #67c5ff;
+  color: white;
+}
+
+.button-area{
+  width: 100%;
+  overflow: hidden;
+}
+
+
+
+/*========================================
   画像表示
 ========================================*/
 
@@ -442,6 +519,7 @@ label.err input,label.err select,label.err textarea{
   background: #f6f5f4;
   padding: 15px;
   margin-top: 15px;
+  margin-bottom: 15px;
   min-height: 150px;
 }
 

@@ -94,7 +94,7 @@ require('header.php')
             <span></span>
             <span></span>
           </nav>
-          <h3  style="text-align:right; font-size:14px;"><i class="fa fa-heart" style="color:red;"><?php echo $value['favorit_count']; ?></i></h3>
+          <h3  style="text-align:right; font-size:14px;"><i class="fa fa-heart" style="color:red;"><?php echo getMemoryFavoritCount($value['id']); ?></i></h3>
         </li>
         <?php
                 }
