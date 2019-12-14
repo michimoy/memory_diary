@@ -53,7 +53,7 @@ require('head.php');
     <div class="profcard-container">
       <img class="background-img" src="<?php echo showImg($otherUserdata['background_img']); ?>" alt="">
       <div class="prof-img">
-        <img src="<?php echo $otherUserdata['pic']; ?>" alt="">
+        <img src="<?php echo showImg($otherUserdata['pic']); ?>" alt="">
       </div>
       <h2 class="profcard-name" style="text-align:center;"><?php echo $otherUserdata['name']; ?></h2>
       <div class="profcard-my_comment">

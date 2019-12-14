@@ -467,13 +467,13 @@ label.err input,label.err select,label.err textarea{
 .btn-flat-border:hover {
   background: #67c5ff;
   color: white;
+  cursor: pointer;
 }
 
 .button-area{
   width: 100%;
   overflow: hidden;
 }
-
 
 
 /*========================================

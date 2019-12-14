@@ -164,7 +164,7 @@
                 url: "ajaxMemoryDelete.php",
                 data: { memoryId : memoryId}
             }).done(function( $result ){
-              alert($result+"の削除に成功しました。");
+              alert($result);
               location.href = 'index.php';
             }).fail(function( msg ){
               alert(msg);

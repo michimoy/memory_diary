@@ -111,7 +111,13 @@ require('head.php');
         </div>
         <div class="button-area">
           <a href="index.php<?php echo appendGetParam(array('m_id')); ?>">&lt; 思い出一覧に戻る</a>
-          <button type="button" name="button" class="btn-flat-border" data-memoryid="<?php echo sanitize($viewMemoryData['memory_data']['id']); ?>">削除する</button>
+          <?php
+            if ($viewMemoryData['memory_data']['user_id'] === $_SESSION['user_id']) {
+           ?>
+            <button type="button" name="button" class="btn-flat-border" data-memoryid="<?php echo sanitize($viewMemoryData['memory_data']['id']); ?>">削除する</button>
+          <?php
+            }
+           ?>
         </div>
       </section>
     </div>

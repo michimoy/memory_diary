@@ -114,7 +114,7 @@ require('head.php');
             ?>
           </div>
             背景画像
-          <label class="area-drop <?php if(!empty($err_msg['background_img'])) echo 'err'; ?>"
+          <label class="area-drop <?php if(!empty($err_msg['background_img'])) echo 'err'; ?>">
             <input type="hidden" name="MAX_FILE_SIZE" value="3145728">
             <input type="file" name="background_img" class="input-file">
             <img src="<?php echo getFormData('background_img'); ?>" alt="" class="prev-img" style="<?php if(empty(getFormData('background_img'))) echo 'display:none;' ?>">
@@ -175,7 +175,7 @@ require('head.php');
           </div>
           <p class="counter-text"><span id="js-count-view">0</span>/500</p>
           <div class="btn-container">
-            <button type="button" name="button" class="btn btn-mid">変更する</button>  
+            <input type="submit" class="btn btn-mid" value="変更する">
           </div>
         </form>
       </div>

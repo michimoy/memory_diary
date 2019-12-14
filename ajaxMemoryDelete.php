@@ -22,12 +22,16 @@ if(isset($_POST['memoryId']) && isset($_SESSION['user_id']) && isLogin()){
     // DBへ接続
     $memory = getMemory($_SESSION['user_id'],$m_id);
     $dbh = dbConnect();
-    $sql = 'DELETE FROM memories WHERE id = :m_id AND user_id = :u_id';
+    $sql = 'DELETE m,mf FROM memories as m
+            LEFT OUTER JOIN memory_favorit as mf
+            on m.id = mf.memory_id AND m.user_id = mf.user_id
+            WHERE m.id = :m_id
+            AND m.user_id = :u_id';
     $data = array(':m_id' => $m_id,':u_id' => $_SESSION['user_id']);
     $stmt = queryPost($dbh,$sql,$data);
 
     if ($stmt) {
-      echo $memory['memory_title'];
+      echo $memory['memory_title'].'の削除に成功しました';
     }else{
       echo '削除に失敗しました';
     }

@@ -683,6 +683,7 @@ function getMemoryOne($m_id){
             m.shooting_date,
             m.memory_explanation,
             m.area,
+            m.user_id,
             m.memory_title,
             u.name
             FROM memories AS m
