@@ -205,8 +205,8 @@ function dbconnect(){
   $db = parse_url($_SERVER['CLEARDB_DATABASE_URL']);
   $db['dbname'] = ltrim($db['path'], '/');
   $dsn = "mysql:host={$db['host']};dbname={$db['dbname']};charset=utf8";
-  $user = 'root';
-  $password = 'root';
+  $user = $db['user'];
+  $password = $db['pass'];
   $options = array(
     // SQL実行失敗時にはエラーコードのみ設定
     PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
