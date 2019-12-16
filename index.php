@@ -10,8 +10,7 @@ debugLogStart();
 //================================
 // 画面処理
 //================================
-//ログイン認証
-require('auth.php');
+
 // 画面表示用データ取得
 //================================
 $siteTitle = 'HOME';
@@ -33,7 +32,7 @@ $dbCategoryData = getCategory();
 // DBから登場人物データを取得
 $dbCharacterData = getCharacter();
 // 表示件数
-$listSpan = 15;
+$listSpan = 10;
 // 現在の表示レコード先頭を算出
 $currentMinNum = (($currentPageNum-1)*$listSpan);//1ページ目なら(1-1)*20 = 0 、 ２ページ目なら(2-1)*20 = 20
 // DBから思い出データを取得
@@ -45,10 +44,7 @@ $memoryData = getMemoriesList($currentMinNum,$category,$character,$kerword,$sort
 require('header.php');
 ?>
 <div id="contents" class="site-width">
-  <p style = "text-align:center;">当サイトは、日々の生活を写真として残していく思い出日記となります。<br>
-     自分の思い出だけでなく、ほかのご利用者様の思い出もご覧になれます。
-  </p>
-  <section id="sidebar">
+  <section id="sidebar" style="position:fixed;">
     <form name="" method="get">
       <h1 class="title">絞り込み</h1><br>
       <div class="sidebar_category">
@@ -93,31 +89,59 @@ require('header.php');
     </form>
   </section>
   <section id="main">
-    <div class="panel-list">
-      <?php
-        foreach ($memoryData['data'] as $key => $val){
-      ?>
-         <div class="panel">
-           <p class="panel-title" style="text-align:center;"><?php echo sanitize($val['memory_title']); ?></p>
-           <a href="profDetail.php<?php echo (!empty(appendGetParam())) ? appendGetParam().'&u_id='.$val['user_id'] : '?u_id='.$val['user_id']; ?>">
-             <p class="panel-auther" style="text-align:right;"><?php echo sanitize($val['name']); ?></p>
+    <p style="text-align:center;">当サイトは、日々の生活を写真として残していく思い出日記となります。<br>
+       自分の思い出だけでなく、ほかのご利用者様の思い出もご覧になれます。
+    </p>
+    <div class="main clearfix">
+      <ul class="bb-custom-grid" id="bb-custom-grid">
+        <?php if(!empty($memoryData['data'])) {
+                foreach ($memoryData['data'] as $key => $value) {
+          ?>
+        <li>
+          <h3  style="text-align:center; color:blue;"><?php echo $value['memory_title']; ?></h3>
+          <a href="profDetail.php<?php echo (!empty(appendGetParam())) ? appendGetParam().'&u_id='.$value['user_id'] : '?u_id='.$value['user_id']; ?>">
+             <p style="text-align:right; color:blue;"><?php echo sanitize($value['name']); ?></p>
            </a>
-           <a href="memoryDetail.php<?php echo (!empty(appendGetParam())) ? appendGetParam().'&m_id='.$val['id'] : '?m_id='.$val['id']; ?>" class="panel">
-             <div class="panel-head">
-               <img src="<?php echo showImg($val['pic1']); ?>">
-             </div>
-           </a>
-           <i class="fa fa-heart icn-like js-click-like <?php if(isMemoryFavorit($_SESSION['user_id'], sanitize($val['id']))){ echo 'active'; } ?>" aria-hidden="true" data-memoryid="<?php echo sanitize($val['id']); ?>" >
-             <span><?php echo getMemoryFavoritCount($val['id']); ?></span>
-           </i>
-         </div>
-      <?php
-      }
-       ?>
+          <div class="bb-bookblock">
+            <div class="bb-item">
+              <a href="memoryDetail.php<?php echo (!empty(appendGetParam())) ? appendGetParam().'&m_id='.$value['id'] : '?m_id='.$value['id']; ?>">
+                <img src="<?php echo showImg(sanitize($value['pic1'])); ?>" alt="NonImage" style="width:300px;height:180px;"/>
+              </a>
+            </div>
+            <div class="bb-item">
+              <a href="memoryDetail.php<?php echo (!empty(appendGetParam())) ? appendGetParam().'&m_id='.$value['id'] : '?m_id='.$value['id']; ?>">
+                <img src="<?php echo showImg(sanitize($value['pic2'])); ?>" alt="NonImage" style="width:300px;height:180px;"/>
+              </a>
+            </div>
+            <div class="bb-item">
+              <a href="memoryDetail.php<?php echo (!empty(appendGetParam())) ? appendGetParam().'&m_id='.$value['id'] : '?m_id='.$value['id']; ?>">
+                <img src="<?php echo showImg(sanitize($value['pic3'])); ?>" alt="NonImage" style="width:300px;height:180px;"/>
+              </a>
+            </div>
+            <div class="bb-item">
+              <a href="memoryDetail.php<?php echo (!empty(appendGetParam())) ? appendGetParam().'&m_id='.$value['id'] : '?m_id='.$value['id']; ?>">
+                <img src="<?php echo showImg(sanitize($value['pic4'])); ?>" alt="NonImage" style="width:300px;height:180px;"/>
+              </a>
+            </div>
+          </div>
+          <nav>
+            <span class="bb-current"></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </nav>
+          <i class="fa fa-heart icn-like js-click-like <?php if(isMemoryFavorit($_SESSION['user_id'], sanitize($value['id']))){ echo 'active'; } ?>" aria-hidden="true" data-memoryid="<?php echo sanitize($value['id']); ?>" >
+               <span><?php echo getMemoryFavoritCount($value['id']); ?></span>
+          </i>
+        </li>
+        <?php
+                }
+              }
+         ?>
+      </ul>
     </div>
     <?php pagination($currentPageNum, $memoryData['total_page']); ?>
   </section>
-
 </div>
 <!-- footer -->
 <?php

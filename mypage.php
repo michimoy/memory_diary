@@ -59,7 +59,7 @@ require('header.php')
   <h1 class="page-title">MYPAGE</h1>
   <section id="main">
     <?php
-      if(!empty($memoryData)){
+      if(!empty($memoryData['total'])){
     ?>
       <div class="main clearfix">
         <ul class="bb-custom-grid" id="bb-custom-grid">
@@ -115,6 +115,7 @@ require('header.php')
           </p>
           <i class="fa fa-arrow-down fa-4x" style="width:100%;text-align:center;color:#4F8AB3;"></i>
           <div class="main clearfix">
+            <p style="text-align:center">投稿例</p>
             <ul class="bb-custom-grid" id="bb-custom-grid">
               <li>
                 <h3  style="text-align:center;">初めての登山</h3>

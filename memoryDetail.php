@@ -24,37 +24,6 @@ if(empty($viewMemoryData)){
   header("Location:index.php"); //トップページへ
 }
 
-
-// // post送信されていた場合
-// if(!empty($_POST['submit'])){
-//   debug('POST送信があります。');
-//
-//   //ログイン認証
-//   require('auth.php');
-//
-//   //例外処理
-//   try {
-//     // DBへ接続
-//     $dbh = dbConnect();
-//     // SQL文作成
-//     $sql = 'INSERT INTO bord (sale_user, buy_user, memory_id, create_date) VALUES (:s_uid, :b_uid, :p_id, :date)';
-//     $data = array(':s_uid' => $viewMemoryData['user_id'], ':b_uid' => $_SESSION['user_id'], ':p_id' => $p_id, ':date' => date('Y-m-d H:i:s'));
-//     // クエリ実行
-//     $stmt = queryPost($dbh, $sql, $data);
-//
-//     // クエリ成功の場合
-//     if($stmt){
-//       $_SESSION['msg_success'] = SUC05;
-//       debug('連絡掲示板へ遷移します。');
-//       header("Location:msg.php?m_id=".$dbh->lastInsertID()); //連絡掲示板へ
-//     }
-//
-//   } catch (Exception $e) {
-//     error_log('エラー発生:' . $e->getMessage());
-//     $err_msg['common'] = MSG07;
-//   }
-// }
-
 debug('画面表示処理終了 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
 ?>
 <?php
@@ -67,12 +36,10 @@ require('head.php');
 
   <body class="page-memoryDetail page-1colum">
 
-
     <!-- ヘッダー -->
     <?php
       require('header.php');
     ?>
-
     <!-- メインコンテンツ -->
     <div id="contents" class="site-width">
       <!-- Main -->
@@ -112,7 +79,7 @@ require('head.php');
         <div class="button-area">
           <a href="index.php<?php echo appendGetParam(array('m_id')); ?>">&lt; 思い出一覧に戻る</a>
           <?php
-            if ($viewMemoryData['memory_data']['user_id'] === $_SESSION['user_id']) {
+            if (isLogin() && $viewMemoryData['memory_data']['user_id'] === $_SESSION['user_id']) {
            ?>
             <button type="button" name="button" class="btn-flat-border" data-memoryid="<?php echo sanitize($viewMemoryData['memory_data']['id']); ?>">削除する</button>
           <?php

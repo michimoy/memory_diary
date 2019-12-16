@@ -47,24 +47,27 @@ function debugLogStart(){
   }
 }
 
-define('MSG01','入力必須です');
-define('MSG02','emailの形式で入力してください');
-define('MSG03','255文字以内で入力してください');
-define('MSG04','6文字以上で入力してください');
+define('MSG01','入力必須です。');
+define('MSG02','emailの形式で入力してください。');
+define('MSG03','255文字以内で入力してください。');
+define('MSG04','6文字以上で入力してください。');
 define('MSG05','英数字で入力してください。');
-define('MSG06', 'メールアドレスが既に登録されています');
-define('MSG07', 'メールアドレスまたはパスワードが違います');
-define('MSG08', 'パスワード(再入力)がパスワードと異なります');
+define('MSG06', 'メールアドレスが既に登録されています。');
+define('MSG07', 'メールアドレスまたはパスワードが違います。');
+define('MSG08', 'パスワード(再入力)がパスワードと異なります。');
 define('MSG09','エラーが発生しました。しばらく経ってからやり直してください。');
 define('MSG10','日付のフォーマットが異なります。');
-define('MSG11','30文字以内で入力してください');
-define('MSG12','いずれか一つは選択してください');
-define('MSG13','500文字以内で入力してください');
+define('MSG11','30文字以内で入力してください。');
+define('MSG12','いずれか一つは選択してください。');
+define('MSG13','500文字以内で入力してください。');
+define('MSG14', '古いパスワードが違います。');
+define('MSG15', '古いパスワードと同じです。');
 define('SUC01','ログインしました。');
 define('SUC02','プロフィールを更新しました。');
 define('SUC03','ユーザ登録が完了しました。');
 define('SUC04','思い出の記録が完了しました。');
 define('SUC05','思い出の修正が完了しました。');
+define('SUC06','パスワードを変更しました。');
 
 
 //エラーメッセージ格納用の配列
@@ -126,6 +129,16 @@ function validMatch($str1,$str2,$key){
   }
 }
 
+//パスワードチェック
+function validPass($str, $key){
+  //半角英数字チェック
+  validHalf($str, $key);
+  //最大文字数チェック
+  validMaxLen($str, $key);
+  //最小文字数チェック
+  validMinLen($str, $key);
+}
+
 //バリデーション関数(日付フォーマット)
 function validDateformat($date,$key){
   global $err_msg;
@@ -149,7 +162,6 @@ function validDateformat($date,$key){
  }
 
 //バリデーション関数（Email重複チェック)
-
 function validEmailDup($email){
   global $err_msg;
 
@@ -482,7 +494,6 @@ function getMyMemory($u_id,$currentMinNum,$span = 10){
     $dbh = dbConnect();
     // 件数用のSQL文作成
     $sql = 'SELECT id FROM memories WHERE user_id = :u_id';
-
     $data = array(':u_id'=>$u_id);
     // クエリ実行
     $stmt = queryPost($dbh, $sql, $data);
@@ -490,6 +501,7 @@ function getMyMemory($u_id,$currentMinNum,$span = 10){
     if (!$stmt) {
       return false;
     }
+
     $rst['total'] = $stmt->rowCount(); //総レコード数
     $rst['total_page'] = ceil($rst['total']/$span); //総ページ数
 
@@ -526,6 +538,66 @@ function getMyMemory($u_id,$currentMinNum,$span = 10){
   } catch (Exception $e) {
     error_log('エラー発生:' . $e->getMessage());
   }
+}
+
+function getMyFavorit($u_id,$currentMinNum,$span = 10){
+
+  try{
+    //DBへ接続
+    $dbh = dbConnect();
+
+    // 件数用のSQL文作成
+    $sql = 'SELECT
+            m.id
+            FROM memories as m
+            LEFT JOIN memory_favorit as mf
+            on mf.memory_id = m.id
+            INNER JOIN users as u
+            on m.user_id = u.id
+            WHERE mf.user_id = :u_id';
+
+    $data = array(':u_id'=>$u_id);
+    // クエリ実行
+    $stmt = queryPost($dbh, $sql, $data);
+
+    if (!$stmt) {
+      return false;
+    }
+
+    $rst['total'] = $stmt->rowCount(); //総レコード数
+    $rst['total_page'] = ceil($rst['total']/$span); //総ページ数
+
+    $sql = 'SELECT
+            m.id,
+            m.pic1,
+            m.pic2,
+            m.pic3,
+            m.pic4,
+            m.user_id,
+            m.memory_title,
+            u.name
+            FROM memories as m
+            LEFT JOIN memory_favorit as mf
+            on mf.memory_id = m.id
+            INNER JOIN users as u
+            on m.user_id = u.id
+            WHERE mf.user_id = :u_id';
+
+    $data = array(':u_id' => $u_id);
+    // クエリ実行
+    $stmt = queryPost($dbh, $sql, $data);
+
+    if($stmt){
+      // クエリ結果の全データを返却
+      $rst['data'] = $stmt->fetchAll();
+      return $rst;
+    }else{
+      return false;
+    }
+
+  } catch (Exception $e) {
+      error_log('エラー発生:' . $e->getMessage());
+    }
 }
 
 function getMemoriesList($currentMinNum,$category,$character,$kerword,$sort,$span = 10){
@@ -742,6 +814,34 @@ function getMemoryOne($m_id){
   }
 }
 
+function myfavoritmemory($u_id){
+  debug('お気に入りの投稿があるか確認します。');
+  debug('ユーザーID：'.$u_id);
+  //例外処理
+  //例外処理
+  try {
+    // DBへ接続
+    $dbh = dbConnect();
+    // SQL文作成
+    $sql = 'SELECT id FROM memories as m
+            INNER JOIN memory_favorit as mf
+            on m.id = mf.memory_id
+            WHERE m.user_id = :u_id AND m.delete_flg = 0';
+
+    $data = array(':u_id' => $u_id);
+    // クエリ実行
+    $stmt = queryPost($dbh, $sql, $data);
+
+    if ($stmt) {
+      return $stmt->fetchAll();
+    }else{
+      return false;
+    }
+
+  } catch (Exception $e) {
+    error_log('エラー発生:' . $e->getMessage());
+  }
+}
 function isMemoryFavorit($u_id, $m_id){
   debug('お気に入り情報があるか確認します。');
   debug('ユーザーID：'.$u_id);
@@ -839,11 +939,39 @@ function pagination( $currentPageNum, $totalPageNum, $link = '', $pageColNum = 5
     echo '</ul>';
   echo '</div>';
 }
+
+
+//メール送信
+function sendMail($from, $to, $subject, $comment){
+    if(!empty($to) && !empty($subject) && !empty($comment)){
+        //文字化けしないように設定
+        mb_language("Japanese"); //現在使っている言語を設定する
+        mb_internal_encoding("UTF-8"); //内部の日本語をどうエンコーディング（機械が分かる言葉へ変換）するかを設定
+
+        //メールを送信（送信結果はtrueかfalseで返ってくる）
+        $result = mb_send_mail($to, $subject, $comment, "From: ".$from);
+        //送信結果を判定
+        if ($result) {
+          debug('メールを送信しました。');
+        } else {
+          debug('【エラー発生】メールの送信に失敗しました。');
+        }
+    }
+}
+
 //画像表示用関数
 function showImg($path){
   if(empty($path)){
     return 'img/sample-img.png';
   }else{
     return $path;
+  }
+}
+
+//エラーメッセージ関数
+function getErrMsg($key){
+  global $err_msg;
+  if(!empty($err_msg[$key])){
+    return $err_msg[$key];
   }
 }
