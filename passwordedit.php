@@ -71,7 +71,7 @@ if(!empty($_POST)){
           $_SESSION['msg_success'] = SUC01;
 
           //メールを送信
-          require'vendor/autoload.php';
+          require 'vendor/autoload.php';
           $dotenv = new DotenvDotenv(__DIR__);
           $dotenv->load();
 
