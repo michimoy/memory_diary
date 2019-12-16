@@ -68,24 +68,28 @@ if(!empty($_POST)){
 
         // クエリ成功の場合
         if($stmt){
-          $_SESSION['msg_success'] = SUC06;
+          $_SESSION['msg_success'] = SUC01;
 
           //メールを送信
-          $username = ($userData['username']) ? $userData['username'] : '名無し';
-          $from = 'info@MemoryDiary.com';
-          $to = $userData['email'];
-          $subject = 'パスワード変更通知｜MemoryDiary';
-          $comment = <<<EOT
-{$username}　さん
-パスワードが変更されました。
+          require'vendor/autoload.php';
+          $dotenv = new DotenvDotenv(__DIR__);
+          $dotenv->load();
 
-////////////////////////////////////////
-メモリーダイアリーカスタマーサービス
-URL  http://memorydiary.com
-E-mail info@MemoryDiary.com
-////////////////////////////////////////
-EOT;
-          sendMail($from, $to, $subject, $comment);
+          $api_key           = $_ENV['API_KEY'];
+          $from              = $_ENV['FROM'];
+          $to                = $userData['email'];
+
+
+          $sendgrid = new SendGrid($api_key, array("turn_off_ssl_verification" => true));
+          $email    = new SendGridEmail();
+          $email->setSmtpapiTos($to)->
+                 setFrom($from)->
+                 setFromName("送信者名")->
+                 setSubject("[パスワード変更通知] | MemoryDiary")->
+                 setText("本メールアドレス宛にパスワード再発行のご依頼がありましたrn下記のURLにて認証キーと新しくパスワードを入力してパスワードの再設定をしてください。")->
+                 setHtml("本メールアドレス宛にパスワード再発行のご依頼がありました<br />下記のURLにて認証キーと新しくパスワードを入力してパスワードの再設定をしてください。")->
+          $response = $sendgrid->send($email);
+          var_dump($response);
 
           header("Location:mypage.php"); //マイページへ
         }

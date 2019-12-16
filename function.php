@@ -950,7 +950,7 @@ function pagination( $currentPageNum, $totalPageNum, $link = '', $pageColNum = 5
 
 
 //メール送信
-function sendMail($from, $to, $subject, $comment){
+  function sendMail($from, $to, $subject, $comment){
     if(!empty($to) && !empty($subject) && !empty($comment)){
         //文字化けしないように設定
         mb_language("Japanese"); //現在使っている言語を設定する
@@ -960,7 +960,7 @@ function sendMail($from, $to, $subject, $comment){
         $result = mb_send_mail($to, $subject, $comment, "From: ".$from);
         //送信結果を判定
         if ($result) {
-          debug('メールを送信しました。');
+          debug('メールを送信しました。'mb_send_mail);
         } else {
           debug('【エラー発生】メールの送信に失敗しました。');
         }
