@@ -282,12 +282,12 @@ require('head.php');
             <textarea id="js-count" name="memory_explanation" rows="1000" cols="80"><?php echo getFormData('memory_explanation'); ?></textarea>
           </label>
           <p class="counter-text"><span id="js-count-view">0</span>/500</p>
+
           <div class="area-msg">
             <?php
             if(!empty($err_msg['memory_explanation'])) echo $err_msg['memory_explanation'];
             ?>
           </div>
-
           <div style="overflow:hidden;">
             <div class="imgDrop-container">
               画像1
@@ -346,7 +346,6 @@ require('head.php');
               </div>
             </div>
           </div>
-
           <div class="btn-container">
             <input type="submit" class="btn btn-mid" value="<?php echo $edit_flg ? "修正する" : "記録する";?>">
           </div>

@@ -357,7 +357,6 @@ function uploadImg($file, $key){
   debug('画像アップロード処理開始');
   debug('FILE情報：'.print_r($file,true));
 
-
   if (isset($file['error']) && is_int($file['error'])) {
     try {
       // バリデーション
@@ -375,7 +374,7 @@ function uploadImg($file, $key){
               throw new RuntimeException('その他のエラーが発生しました');
       }
 
-      $type = exif_imagetype($file['tmp_name']);
+      $type = @exif_imagetype($file['tmp_name']);
       if (!in_array($type, [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG], true)) { // 第三引数にはtrueを設定すると厳密にチェックしてくれるので必ずつける
           throw new RuntimeException('画像形式が未対応です');
       }
@@ -389,15 +388,18 @@ function uploadImg($file, $key){
         'version' => 'latest',
       ]);
 
-      $path = sha1_file($file['tmp_name']).image_type_to_extension($type);
+      if (!is_uploaded_file($file['tmp_name'])) {
+        return;
+      }
 
+      $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
       // S3バケットに画像をアップロード
       $result = $s3->putObject(array(
           'Bucket' => getenv('AWS_BUCKET'),
-          'Key' => 'uploads/'.$path,
-          'SourceFile' => $path,
+          'Key' => $file['tmp_name'].$type,
+          'Body' => fopen($file['tmp_name'], 'rb'),
           'ACL' => 'public-read', // 画像は一般公開されます
-          'ContentType' => mime_content_type($file),
+          'ContentType' => mime_content_type($file['tmp_name']),
       ));
 
       // $file['mime']の値はブラウザ側で偽装可能なので、MIMEタイプを自前でチェックする
