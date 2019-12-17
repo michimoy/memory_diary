@@ -377,6 +377,7 @@ function uploadImg($file, $key){
       require 'vendor/autoload.php';
 
       $type = @exif_imagetype($file['tmp_name']);
+
       if (!in_array($type, [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG], true)) { // 第三引数にはtrueを設定すると厳密にチェックしてくれるので必ずつける
           throw new RuntimeException('画像形式が未対応です');
       }
@@ -426,7 +427,7 @@ function uploadImg($file, $key){
 
       // debug('ファイルは正常にアップロードされました');
       // debug('ファイルパス：'.$path);
-      return $result['ObjectURL'];
+      // return $result['ObjectURL'];
 
     } catch (RuntimeException $e) {
 
