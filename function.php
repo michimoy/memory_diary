@@ -198,15 +198,15 @@ function dbconnect(){
   //DBへの接続準備
 
   //ローカル用
-  // $dsn  = 'mysql:dbname=memory_diary;host=localhost;charset=utf8';
-  // $user = 'root';
-  // $password = 'root';
+  $dsn  = 'mysql:dbname=memory_diary;host=localhost;charset=utf8';
+  $user = 'root';
+  $password = 'root';
   //本番用
-  $db = parse_url($_SERVER['CLEARDB_DATABASE_URL']);
-  $db['dbname'] = ltrim($db['path'], '/');
-  $dsn = "mysql:host={$db['host']};dbname={$db['dbname']};charset=utf8";
-  $user = $db['user'];
-  $password = $db['pass'];
+  // $db = parse_url($_SERVER['CLEARDB_DATABASE_URL']);
+  // $db['dbname'] = ltrim($db['path'], '/');
+  // $dsn = "mysql:host={$db['host']};dbname={$db['dbname']};charset=utf8";
+  // $user = $db['user'];
+  // $password = $db['pass'];
   $options = array(
     // SQL実行失敗時にはエラーコードのみ設定
     PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
@@ -377,7 +377,6 @@ function uploadImg($file, $key){
 
       require 'vendor/autoload.php';
 
-
       $type = @exif_imagetype($file['tmp_name']);
 
       if (!in_array($type, [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG], true)) { // 第三引数にはtrueを設定すると厳密にチェックしてくれるので必ずつける
@@ -388,8 +387,8 @@ function uploadImg($file, $key){
 
       $s3client = new Aws\S3\S3Client([
         'credentials' => [
-            'key' => 'AKIA5GUWEMTDQNDKYUH3',
-            'secret' => '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',
+            'key' => getenv('AWS_ACCESS_KEY_ID'),
+            'secret' => getenv('AWS_SECRET_ACCESS_KEY'),
         ],
         'region' => 'ap-northeast-1',
         'version' => 'latest',
@@ -402,9 +401,9 @@ function uploadImg($file, $key){
       // $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
       // S3バケットに画像をアップロード
       $result = $s3client->putObject(array(
-          'Bucket' => 'memorydiary',
-          'Key' => $path,
-          'Body' => fopen($file['tmp_name'], 'rb'),
+          'Bucket' => getenv('AWS_BUCKET'),
+          'Key' => 'uploads/',
+          'SourceFile' => fopen($file['tmp_name'], 'rb'),
           // 'ACL' => 'public-read', // 画像は一般公開されます
           'ContentType' => mime_content_type($file['tmp_name']),
       ));
@@ -429,7 +428,6 @@ function uploadImg($file, $key){
 
       // debug('ファイルは正常にアップロードされました');
       // debug('ファイルパス：'.$path);
-
       return $result['ObjectURL'];
 
     } catch (RuntimeException $e) {
