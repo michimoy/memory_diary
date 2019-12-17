@@ -394,7 +394,7 @@ function uploadImg($file, $key){
       // S3バケットに画像をアップロード
       $result = $s3->putObject(array(
           'Bucket' => getenv('AWS_BUCKET'),
-          'Key' => 'uploads/',
+          'Key' => 'uploads/'.$path,
           'SourceFile' => $path,
           'ACL' => 'public-read', // 画像は一般公開されます
           'ContentType' => mime_content_type($file),
