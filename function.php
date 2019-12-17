@@ -198,15 +198,15 @@ function dbconnect(){
   //DBへの接続準備
 
   //ローカル用
-  $dsn  = 'mysql:dbname=memory_diary;host=localhost;charset=utf8';
-  $user = 'root';
-  $password = 'root';
+  // $dsn  = 'mysql:dbname=memory_diary;host=localhost;charset=utf8';
+  // $user = 'root';
+  // $password = 'root';
   //本番用
-  // $db = parse_url($_SERVER['CLEARDB_DATABASE_URL']);
-  // $db['dbname'] = ltrim($db['path'], '/');
-  // $dsn = "mysql:host={$db['host']};dbname={$db['dbname']};charset=utf8";
-  // $user = $db['user'];
-  // $password = $db['pass'];
+  $db = parse_url($_SERVER['CLEARDB_DATABASE_URL']);
+  $db['dbname'] = ltrim($db['path'], '/');
+  $dsn = "mysql:host={$db['host']};dbname={$db['dbname']};charset=utf8";
+  $user = $db['user'];
+  $password = $db['pass'];
   $options = array(
     // SQL実行失敗時にはエラーコードのみ設定
     PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
@@ -392,7 +392,7 @@ function uploadImg($file, $key){
       if (!is_uploaded_file($file['tmp_name'])) {
         return;
       }
-      
+
       // $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
       // S3バケットに画像をアップロード
       $result = $s3client->putObject(array(
