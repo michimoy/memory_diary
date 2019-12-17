@@ -72,25 +72,20 @@ if(!empty($_POST)){
 
           //メールを送信
           require 'vendor/autoload.php';
-          $dotenv = new DotenvDotenv(__DIR__);
-          $dotenv->load();
-
-          $api_key           = $_ENV['API_KEY'];
-          $from              = $_ENV['FROM'];
-          $to                = $userData['email'];
-
-
-          $sendgrid = new SendGrid($api_key, array("turn_off_ssl_verification" => true));
-          $email    = new SendGridEmail();
-          $email->setSmtpapiTos($to)->
-                 setFrom($from)->
-                 setFromName("送信者名")->
-                 setSubject("[パスワード変更通知] | MemoryDiary")->
-                 setText("本メールアドレス宛にパスワード再発行のご依頼がありましたrn下記のURLにて認証キーと新しくパスワードを入力してパスワードの再設定をしてください。")->
-                 setHtml("本メールアドレス宛にパスワード再発行のご依頼がありました<br />下記のURLにて認証キーと新しくパスワードを入力してパスワードの再設定をしてください。")->
-          $response = $sendgrid->send($email);
-          var_dump($response);
-
+          $email = new \SendGrid\Mail\Mail();
+          $email->setFrom("memorydiary@info.com", "送信者A");
+          $email->setSubject("TestMail漢字");
+          $email->addTo("yuji.it5668@gmail.com", "受信者B");
+          $email->addContent("text/plain", "日本語 English");
+          $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
+          try {
+              $response = $sendgrid->send($email);
+              print $response->statusCode() . "\n";
+              print_r($response->headers());
+              print $response->body() . "\n";
+          } catch (Exception $e) {
+              echo 'Caught exception: '. $e->getMessage() ."\n";
+          }
           header("Location:mypage.php"); //マイページへ
         }
 
