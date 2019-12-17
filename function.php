@@ -404,8 +404,8 @@ function uploadImg($file, $key){
       // S3バケットに画像をアップロード
       $result = $s3client->putObject(array(
           'Bucket' => getenv('AWS_BUCKET'),
-          'Key' => $keypath,
-          'SourceFile' => $filepath,
+          'Key' => $filepath,
+          'SourceFile' => $keypath,
           'ACL' => 'public-read', // 画像は一般公開されます
           'ContentType' => mime_content_type($file['tmp_name']),
       ));
