@@ -960,7 +960,7 @@ function pagination( $currentPageNum, $totalPageNum, $link = '', $pageColNum = 5
         $result = mb_send_mail($to, $subject, $comment, "From: ".$from);
         //送信結果を判定
         if ($result) {
-          debug('メールを送信しました。'mb_send_mail);
+          debug('メールを送信しました。');
         } else {
           debug('【エラー発生】メールの送信に失敗しました。');
         }
