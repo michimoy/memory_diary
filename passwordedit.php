@@ -66,26 +66,26 @@ if(!empty($_POST)){
         // クエリ実行
         $stmt = queryPost($dbh, $sql, $data);
 
-        // クエリ成功の場合
-        if($stmt){
-          $_SESSION['msg_success'] = SUC01;
-
-          //メールを送信
-          require 'vendor/autoload.php';
-
-          $email = new \SendGrid\Mail\Mail();
-          $email->setFrom("memorydiary@info.com", "送信者A");
-          $email->setSubject("TestMail漢字");
-          $email->addTo("yuji.it5668@gmail.com", "受信者B");
-          $email->addContent("text/plain", "日本語 English");
-          $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
-          $response = $sendgrid->send($email);
-          print $response->statusCode() . "\n";
-          print_r($response->headers());
-          print $response->body() . "\n";
-
-          header("Location:mypage.php"); //マイページへ
-        }
+        // // クエリ成功の場合
+        // if($stmt){
+        //   $_SESSION['msg_success'] = SUC01;
+        //
+        //   //メールを送信
+        //   require 'vendor/autoload.php';
+        //
+        //   $email = new \SendGrid\Mail\Mail();
+        //   $email->setFrom("memorydiary@info.com", "送信者A");
+        //   $email->setSubject("TestMail漢字");
+        //   $email->addTo("yuji.it5668@gmail.com", "受信者B");
+        //   $email->addContent("text/plain", "日本語 English");
+        //   $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
+        //   $response = $sendgrid->send($email);
+        //   print $response->statusCode() . "\n";
+        //   print_r($response->headers());
+        //   print $response->body() . "\n";
+        //
+        //   header("Location:mypage.php"); //マイページへ
+        // }
 
       } catch (Exception $e) {
         error_log('エラー発生:' . $e->getMessage());
