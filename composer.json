@@ -3,6 +3,7 @@
       "php": "~7.0",
       "ext-mbstring": "*",
         "sendgrid/sendgrid": "^7.4",
-        "aws/aws-sdk-php": "^3.129"
+        "aws/aws-sdk-php": "^3.129",
+        "vlucas/phpdotenv": "^4.1"
     }
  }

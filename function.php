@@ -374,7 +374,9 @@ function uploadImg($file, $key){
               throw new RuntimeException('その他のエラーが発生しました');
       }
 
+
       require 'vendor/autoload.php';
+
 
       $type = @exif_imagetype($file['tmp_name']);
 
@@ -386,8 +388,8 @@ function uploadImg($file, $key){
 
       $s3client = new Aws\S3\S3Client([
         'credentials' => [
-            'key' => getenv('AWS_ACCESS_KEY_ID'),
-            'secret' => getenv('AWS_SECRET_ACCESS_KEY'),
+            'key' => 'AKIA5GUWEMTDQNDKYUH3',
+            'secret' => '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',
         ],
         'region' => 'ap-northeast-1',
         'version' => 'latest',
@@ -400,8 +402,8 @@ function uploadImg($file, $key){
       // $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
       // S3バケットに画像をアップロード
       $result = $s3client->putObject(array(
-          'Bucket' => getenv('AWS_BUCKET'),
-          'Key' => 'uploads/',
+          'Bucket' => 'memorydiary',
+          'Key' => $path,
           'Body' => fopen($file['tmp_name'], 'rb'),
           // 'ACL' => 'public-read', // 画像は一般公開されます
           'ContentType' => mime_content_type($file['tmp_name']),
@@ -427,6 +429,7 @@ function uploadImg($file, $key){
 
       // debug('ファイルは正常にアップロードされました');
       // debug('ファイルパス：'.$path);
+
       return $result['ObjectURL'];
 
     } catch (RuntimeException $e) {
