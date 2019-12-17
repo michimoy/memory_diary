@@ -401,7 +401,7 @@ function uploadImg($file, $key){
       // S3バケットに画像をアップロード
       $result = $s3client->putObject(array(
           'Bucket' => getenv('AWS_BUCKET'),
-          'Key' => $path,
+          'Key' => 'uploads/',
           'Body' => fopen($file['tmp_name'], 'rb'),
           // 'ACL' => 'public-read', // 画像は一般公開されます
           'ContentType' => mime_content_type($file['tmp_name']),
@@ -427,7 +427,7 @@ function uploadImg($file, $key){
 
       // debug('ファイルは正常にアップロードされました');
       // debug('ファイルパス：'.$path);
-      // return $result['ObjectURL'];
+      return $result['ObjectURL'];
 
     } catch (RuntimeException $e) {
 
