@@ -198,15 +198,15 @@ function dbconnect(){
   //DBへの接続準備
 
   //ローカル用
-  // $dsn  = 'mysql:dbname=memory_diary;host=localhost;charset=utf8';
-  // $user = 'root';
-  // $password = 'root';
+  $dsn  = 'mysql:dbname=memory_diary;host=localhost;charset=utf8';
+  $user = 'root';
+  $password = 'root';
   //本番用
-  $db = parse_url($_SERVER['CLEARDB_DATABASE_URL']);
-  $db['dbname'] = ltrim($db['path'], '/');
-  $dsn = "mysql:host={$db['host']};dbname={$db['dbname']};charset=utf8";
-  $user = $db['user'];
-  $password = $db['pass'];
+  // $db = parse_url($_SERVER['CLEARDB_DATABASE_URL']);
+  // $db['dbname'] = ltrim($db['path'], '/');
+  // $dsn = "mysql:host={$db['host']};dbname={$db['dbname']};charset=utf8";
+  // $user = $db['user'];
+  // $password = $db['pass'];
   $options = array(
     // SQL実行失敗時にはエラーコードのみ設定
     PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
@@ -359,6 +359,7 @@ function uploadImg($file, $key){
 
   if (isset($file['error']) && is_int($file['error'])) {
     try {
+      require 'vendor/autoload.php';
       // バリデーション
       // $file['error'] の値を確認。配列内には「UPLOAD_ERR_OK」などの定数が入っている。
       //「UPLOAD_ERR_OK」などの定数はphpでファイルアップロード時に自動的に定義される。定数には値として0や1などの数値が入っている。
@@ -391,10 +392,10 @@ function uploadImg($file, $key){
       if (!is_uploaded_file($file['tmp_name'])) {
         return;
       }
-
+      
       // $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
       // S3バケットに画像をアップロード
-      $result = $s3->putObject(array(
+      $result = $s3client->putObject(array(
           'Bucket' => getenv('AWS_BUCKET'),
           'Key' => $file['tmp_name'],
           'Body' => fopen($file['tmp_name'], 'rb'),
@@ -422,7 +423,7 @@ function uploadImg($file, $key){
 
       // debug('ファイルは正常にアップロードされました');
       // debug('ファイルパス：'.$path);
-      return $result['ObjectURL'];
+      // return $result['ObjectURL'];
 
     } catch (RuntimeException $e) {
 
