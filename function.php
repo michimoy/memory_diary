@@ -374,10 +374,10 @@ function uploadImg($file, $key){
               throw new RuntimeException('その他のエラーが発生しました');
       }
 
-      $type = @exif_imagetype($file['tmp_name']);
-      if (!in_array($type, [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG], true)) { // 第三引数にはtrueを設定すると厳密にチェックしてくれるので必ずつける
-          throw new RuntimeException('画像形式が未対応です');
-      }
+      // $type = @exif_imagetype($file['tmp_name']);
+      // if (!in_array($type, [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG], true)) { // 第三引数にはtrueを設定すると厳密にチェックしてくれるので必ずつける
+      //     throw new RuntimeException('画像形式が未対応です');
+      // }
 
       $s3client = new Aws\S3\S3Client([
         'credentials' => [
@@ -392,11 +392,11 @@ function uploadImg($file, $key){
         return;
       }
 
-      $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
+      // $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
       // S3バケットに画像をアップロード
       $result = $s3->putObject(array(
           'Bucket' => getenv('AWS_BUCKET'),
-          'Key' => $file['tmp_name'].$type,
+          'Key' => $file['tmp_name'],
           'Body' => fopen($file['tmp_name'], 'rb'),
           'ACL' => 'public-read', // 画像は一般公開されます
           'ContentType' => mime_content_type($file['tmp_name']),
