@@ -75,16 +75,7 @@ if(!empty($_POST)){
           $username = ($userData['name']) ? $userData['name'] : '名無し';
           $fromemail = "yuji.it5668@gmail.com";
           $toemail = $userData['email'];
-          $content = <<<EOT
-{$username} さん
-パスワードが変更されました。
-
-////////////////////////////////////////
-メモリダイアリー事務局
-URL: https://memorydiary.herokuapp.com/
-Email: {$fromemail}
-////////////////////////////////////////
-EOT;
+          $content = "unko";
 
           $email = new \SendGrid\Mail\Mail();
           $email->setFrom($fromemail, "メモリダイアリー事務局");
