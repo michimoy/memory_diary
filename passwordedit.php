@@ -73,7 +73,7 @@ if(!empty($_POST)){
           //メールを送信
           require 'vendor/autoload.php';
           $username = ($userData['name']) ? $userData['name'] : '名無し';
-          $fromemail = "info@memorydiary.com";
+          $fromemail = "yuji.it5668@gmail.com";
           $toemail = $userData['email'];
           $content = <<<EOT
 {$username} さん
