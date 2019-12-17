@@ -406,7 +406,7 @@ function uploadImg($file, $key){
           'Bucket' => getenv('AWS_BUCKET'),
           'Key' => $path,
           'SourceFile' => $path,
-          // 'ACL' => 'public-read', // 画像は一般公開されます
+          'ACL' => 'public-read', // 画像は一般公開されます
           'ContentType' => mime_content_type($file['tmp_name']),
       ));
 
