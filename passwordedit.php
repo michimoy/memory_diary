@@ -73,15 +73,24 @@ if(!empty($_POST)){
           //メールを送信
           require 'vendor/autoload.php';
           $username = ($userData['name']) ? $userData['name'] : '名無し';
-          $fromemail = "yuji.it5668@gmail.com";
+          $fromemail = "info@memorydiary.com";
           $toemail = $userData['email'];
-          $content = "unko";
+          $content = <<<EOT
+{$username} さん
+パスワードが変更されました。
+
+////////////////////////////////////////
+メモリダイアリー事務局
+URL: https://memorydiary.herokuapp.com/
+Email: {$fromemail}
+////////////////////////////////////////
+EOT;
 
           $email = new \SendGrid\Mail\Mail();
           $email->setFrom($fromemail, "メモリダイアリー事務局");
           $email->setSubject("パスワード変更要求");
           $email->addTo($toemail);
-          $email->addContent($content);
+          $email->addContent("text/plain",$content);
           $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
           $response = $sendgrid->send($email);
           print $response->statusCode() . "\n";
