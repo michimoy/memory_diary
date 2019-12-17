@@ -401,7 +401,7 @@ function uploadImg($file, $key){
       $result = $s3->putObject(array(
           'Bucket' => getenv('AWS_BUCKET_BUCKET'),
           'Key' => ,'uploads/',
-          'SourceFile' => $path
+          'SourceFile' => $path,
           'ACL' => 'public-read', // 画像は一般公開されます
           'ContentType' => mime_content_type($file),
       ));
