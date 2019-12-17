@@ -69,11 +69,12 @@ if(!empty($_POST)){
         // クエリ成功の場合
         if($stmt){
           $_SESSION['msg_success'] = SUC06;
-          
+
           //メールを送信
           require 'vendor/autoload.php';
           $username = ($userData['name']) ? $userData['name'] : '名無し';
           $fromemail = "info@memorydiary.com";
+          $toemail = $userData['email'];
           $content = <<<EOT
 {$username} さん
 パスワードが変更されました。
@@ -88,7 +89,7 @@ EOT;
           $email = new \SendGrid\Mail\Mail();
           $email->setFrom($fromemail, "メモリダイアリー事務局");
           $email->setSubject("パスワード変更要求");
-          $email->addTo($userData['email']);
+          $email->addTo($toemail);
           $email->addContent($content);
           $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
           $response = $sendgrid->send($email);
