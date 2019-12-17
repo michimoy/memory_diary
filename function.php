@@ -398,14 +398,14 @@ function uploadImg($file, $key){
         return;
       }
 
-      $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
-
+      $keypath = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
+      $filepath = $file['tmp_name'].image_type_to_extension($type);
       // $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
       // S3バケットに画像をアップロード
       $result = $s3client->putObject(array(
           'Bucket' => getenv('AWS_BUCKET'),
-          'Key' => $path,
-          'SourceFile' => $path,
+          'Key' => $keypath,
+          'SourceFile' => $filepath,
           'ACL' => 'public-read', // 画像は一般公開されます
           'ContentType' => mime_content_type($file['tmp_name']),
       ));
