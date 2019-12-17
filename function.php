@@ -395,13 +395,17 @@ function uploadImg($file, $key){
         'version' => 'latest',
       ]);
 
-      // $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
+      $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
+
+      if (!move_uploaded_file($file['tmp_name'], $path)) { //ファイルを移動する
+          throw new RuntimeException('ファイル保存時にエラーが発生しました');
+      }
 
       // S3バケットに画像をアップロード
       $result = $s3->putObject(array(
           'Bucket' => getenv('AWS_BUCKET'),
-          'Key' => 'uploads/',
-          'SourceFile' => sha1_file($file['tmp_name']),
+          'Key' => $path,
+          'SourceFile' => $path,
           'ACL' => 'public-read', // 画像は一般公開されます
           'ContentType' => mime_content_type($file),
       ));
