@@ -398,7 +398,7 @@ function uploadImg($file, $key){
           'Bucket' => getenv('AWS_BUCKET'),
           'Key' => $file['tmp_name'],
           'Body' => fopen($file['tmp_name'], 'rb'),
-          'ACL' => 'public-read', // 画像は一般公開されます
+          // 'ACL' => 'public-read', // 画像は一般公開されます
           'ContentType' => mime_content_type($file['tmp_name']),
       ));
 
