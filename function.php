@@ -359,26 +359,29 @@ function uploadImg($file, $key){
 
   if (isset($file['error']) && is_int($file['error'])) {
     try {
-      require 'vendor/autoload.php';
       // バリデーション
       // $file['error'] の値を確認。配列内には「UPLOAD_ERR_OK」などの定数が入っている。
       //「UPLOAD_ERR_OK」などの定数はphpでファイルアップロード時に自動的に定義される。定数には値として0や1などの数値が入っている。
-      // switch ($file['error']) {
-      //     case UPLOAD_ERR_OK: // OK
-      //         break;
-      //     case UPLOAD_ERR_NO_FILE:   // ファイル未選択の場合
-      //         throw new RuntimeException('ファイルが選択されていません');
-      //     case UPLOAD_ERR_INI_SIZE:  // php.ini定義の最大サイズが超過した場合
-      //     case UPLOAD_ERR_FORM_SIZE: // フォーム定義の最大サイズ超過した場合
-      //         throw new RuntimeException('ファイルサイズが大きすぎます');
-      //     default: // その他の場合
-      //         throw new RuntimeException('その他のエラーが発生しました');
-      // }
+      switch ($file['error']) {
+          case UPLOAD_ERR_OK: // OK
+              break;
+          case UPLOAD_ERR_NO_FILE:   // ファイル未選択の場合
+              throw new RuntimeException('ファイルが選択されていません');
+          case UPLOAD_ERR_INI_SIZE:  // php.ini定義の最大サイズが超過した場合
+          case UPLOAD_ERR_FORM_SIZE: // フォーム定義の最大サイズ超過した場合
+              throw new RuntimeException('ファイルサイズが大きすぎます');
+          default: // その他の場合
+              throw new RuntimeException('その他のエラーが発生しました');
+      }
 
-      // $type = @exif_imagetype($file['tmp_name']);
-      // if (!in_array($type, [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG], true)) { // 第三引数にはtrueを設定すると厳密にチェックしてくれるので必ずつける
-      //     throw new RuntimeException('画像形式が未対応です');
-      // }
+      require 'vendor/autoload.php';
+
+      $type = @exif_imagetype($file['tmp_name']);
+      if (!in_array($type, [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG], true)) { // 第三引数にはtrueを設定すると厳密にチェックしてくれるので必ずつける
+          throw new RuntimeException('画像形式が未対応です');
+      }
+
+      $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
 
       $s3client = new Aws\S3\S3Client([
         'credentials' => [
@@ -397,7 +400,7 @@ function uploadImg($file, $key){
       // S3バケットに画像をアップロード
       $result = $s3client->putObject(array(
           'Bucket' => getenv('AWS_BUCKET'),
-          'Key' => $file['tmp_name'],
+          'Key' => $path,
           'Body' => fopen($file['tmp_name'], 'rb'),
           // 'ACL' => 'public-read', // 画像は一般公開されます
           'ContentType' => mime_content_type($file['tmp_name']),
@@ -423,7 +426,7 @@ function uploadImg($file, $key){
 
       // debug('ファイルは正常にアップロードされました');
       // debug('ファイルパス：'.$path);
-      // return $result['ObjectURL'];
+      return $result['ObjectURL'];
 
     } catch (RuntimeException $e) {
 
