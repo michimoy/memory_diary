@@ -357,6 +357,7 @@ function uploadImg($file, $key){
   debug('画像アップロード処理開始');
   debug('FILE情報：'.print_r($file,true));
 
+
   if (isset($file['error']) && is_int($file['error'])) {
     try {
       // バリデーション
@@ -374,27 +375,58 @@ function uploadImg($file, $key){
               throw new RuntimeException('その他のエラーが発生しました');
       }
 
-      // $file['mime']の値はブラウザ側で偽装可能なので、MIMEタイプを自前でチェックする
-      // exif_imagetype関数は「IMAGETYPE_GIF」「IMAGETYPE_JPEG」などの定数を返す
+      // アップロードされた画像の処理
+      $file = $_FILES['file']['tmp_name'];
+      if (!is_uploaded_file($file)) {
+          return;
+      }
+
       $type = @exif_imagetype($file['tmp_name']);
       if (!in_array($type, [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG], true)) { // 第三引数にはtrueを設定すると厳密にチェックしてくれるので必ずつける
           throw new RuntimeException('画像形式が未対応です');
       }
 
+      $s3client = new Aws\S3\S3Client([
+        'credentials' => [
+            'key' => getenv('AWS_ACCESS_KEY_ID'),
+            'secret' => getenv('AWS_SECRET_ACCESS_KEY'),
+        ],
+        'region' => 'ap-northeast-1',
+        'version' => 'latest',
+      ]);
+
+      $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
+
+      // S3バケットに画像をアップロード
+      $result = $s3->putObject(array(
+          'Bucket' => getenv('AWS_BUCKET_BUCKET'),
+          'Key' => $path,
+          'SourceFile' => 'uploads/',
+          'ACL' => 'public-read', // 画像は一般公開されます
+          'ContentType' => mime_content_type($file),
+      ));
+
+      // $file['mime']の値はブラウザ側で偽装可能なので、MIMEタイプを自前でチェックする
+      // exif_imagetype関数は「IMAGETYPE_GIF」「IMAGETYPE_JPEG」などの定数を返す
+      // $type = @exif_imagetype($file['tmp_name']);
+      // if (!in_array($type, [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG], true)) { // 第三引数にはtrueを設定すると厳密にチェックしてくれるので必ずつける
+      //     throw new RuntimeException('画像形式が未対応です');
+      // }
+
       // ファイルデータからSHA-1ハッシュを取ってファイル名を決定し、ファイルを保存する
       // ハッシュ化しておかないとアップロードされたファイル名そのままで保存してしまうと同じファイル名がアップロードされる可能性があり、
       // DBにパスを保存した場合、どっちの画像のパスなのか判断つかなくなってしまう
       // image_type_to_extension関数はファイルの拡張子を取得するもの
-      $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
-      if (!move_uploaded_file($file['tmp_name'], $path)) { //ファイルを移動する
-          throw new RuntimeException('ファイル保存時にエラーが発生しました');
-      }
-      // 保存したファイルパスのパーミッション（権限）を変更する
-      chmod($path, 0644);
+      // // // $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
+      // // if (!move_uploaded_file($file['tmp_name'], $path)) { //ファイルを移動する
+      // //     throw new RuntimeException('ファイル保存時にエラーが発生しました');
+      // // }
+      // // 保存したファイルパスのパーミッション（権限）を変更する
+      // chmod($path, 0644);
 
-      debug('ファイルは正常にアップロードされました');
-      debug('ファイルパス：'.$path);
-      return $path;
+      // debug('ファイルは正常にアップロードされました');
+      // debug('ファイルパス：'.$path);
+      return $result['ObjectURL'];
 
     } catch (RuntimeException $e) {
 
