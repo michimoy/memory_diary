@@ -362,17 +362,17 @@ function uploadImg($file, $key){
       // バリデーション
       // $file['error'] の値を確認。配列内には「UPLOAD_ERR_OK」などの定数が入っている。
       //「UPLOAD_ERR_OK」などの定数はphpでファイルアップロード時に自動的に定義される。定数には値として0や1などの数値が入っている。
-      switch ($file['error']) {
-          case UPLOAD_ERR_OK: // OK
-              break;
-          case UPLOAD_ERR_NO_FILE:   // ファイル未選択の場合
-              throw new RuntimeException('ファイルが選択されていません');
-          case UPLOAD_ERR_INI_SIZE:  // php.ini定義の最大サイズが超過した場合
-          case UPLOAD_ERR_FORM_SIZE: // フォーム定義の最大サイズ超過した場合
-              throw new RuntimeException('ファイルサイズが大きすぎます');
-          default: // その他の場合
-              throw new RuntimeException('その他のエラーが発生しました');
-      }
+      // switch ($file['error']) {
+      //     case UPLOAD_ERR_OK: // OK
+      //         break;
+      //     case UPLOAD_ERR_NO_FILE:   // ファイル未選択の場合
+      //         throw new RuntimeException('ファイルが選択されていません');
+      //     case UPLOAD_ERR_INI_SIZE:  // php.ini定義の最大サイズが超過した場合
+      //     case UPLOAD_ERR_FORM_SIZE: // フォーム定義の最大サイズ超過した場合
+      //         throw new RuntimeException('ファイルサイズが大きすぎます');
+      //     default: // その他の場合
+      //         throw new RuntimeException('その他のエラーが発生しました');
+      // }
 
       // $type = @exif_imagetype($file['tmp_name']);
       // if (!in_array($type, [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG], true)) { // 第三引数にはtrueを設定すると厳密にチェックしてくれるので必ずつける
