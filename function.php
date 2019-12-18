@@ -69,13 +69,12 @@ define('SUC04','思い出の記録が完了しました。');
 define('SUC05','思い出の修正が完了しました。');
 define('SUC06','パスワードを変更しました。');
 
-
 //エラーメッセージ格納用の配列
 $err_msg = array();
 
 //バリデーション関数（未入力チェック）
 function validRequired($str, $key){
-  if($str === '' || empty($str) ){ //金額フォームなどを考えると数値の０はOKにし、空文字はダメにする
+  if($str === '' || empty($str) ){
     global $err_msg;
     $err_msg[$key] = MSG01;
   }
@@ -86,6 +85,22 @@ function validEmail($str, $key){
   if (!preg_match("/^([a-zA-Z0-9])+([a-zA-Z0-9\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\._-]+)+$/", $str)){
     global $err_msg;
     $err_msg[$key] = MSG02;
+  }
+}
+
+//バリデーション関数(最小文字数)
+function validMinLen($str,$key,$min = 6){
+  if (mb_strlen($str) < $min) {
+    global $err_msg;
+    $err_msg[$key] = MSG04;
+  }
+}
+
+//バリデーション関数（英数字チェック）
+function validHalf($str, $key){
+  if(!preg_match("/^[a-zA-Z0-9]+$/", $str)){
+    global $err_msg;
+    $err_msg[$key] = MSG05;
   }
 }
 
@@ -103,22 +118,6 @@ function validMaxLen($str,$key,$max = 255){
   if ($max == 500 && mb_strlen($str) > $max) {
     global $err_msg;
     $err_msg[$key] = MSG13;
-  }
-}
-
-//バリデーション関数(最大文字数)
-function validMinLen($str,$key,$min = 6){
-  if (mb_strlen($str) < $min) {
-    global $err_msg;
-    $err_msg[$key] = MSG04;
-  }
-}
-
-//バリデーション関数（英数字チェック）
-function validHalf($str, $key){
-  if(!preg_match("/^[a-zA-Z0-9]+$/", $str)){
-    global $err_msg;
-    $err_msg[$key] = MSG05;
   }
 }
 
@@ -187,9 +186,6 @@ function validEmailDup($email){
 
 }
 
-
-
-
 //================================
 // データベース
 //================================
@@ -220,13 +216,13 @@ function dbconnect(){
   $dbh = new PDO($dsn,$user,$password,$options);
   return $dbh;
 }
+
 //SQL実行関数
 function queryPost($dbh,$sql,$data){
   //クエリ作成
   $stmt = $dbh->prepare($sql);
   //プレースホルダーに値をセットし、SQL分を実行する。
   if(!$stmt->execute($data)){
-
     debug('クエリ発行に失敗しました');
     $err_msg['common'] = MSG09;
     return false;
@@ -253,10 +249,10 @@ function getUser($u_id){
     }else{
       return false;
     }
+
   } catch (Exception $e) {
     error_log('エラー発生:' . $e->getMessage());
   }
-
 }
 
 function getOtherUser($u_id){
@@ -276,229 +272,8 @@ function getOtherUser($u_id){
     }else{
       return false;
     }
-
   }catch(Exception $e) {
     error_log('エラー発生:' . $e->getMessage());
-  }
-}
-// サニタイズ
-function sanitize($str){
-  if (is_array($str)) {
-    return array_map('htmlspecialchars',$str);
-  }else{
-    return htmlspecialchars($str,ENT_QUOTES);
-  }
-}
-
-// フォーム入力保持
-function getFormData($str,$flg = false){
-
-if ($flg) {
-  $method = $_GET;
-}else{
-  $method = $_POST;
-}
-
-global $dbFormData;
-  // ユーザーデータがある場合
-    if(!empty($dbFormData)){
-    //フォームのエラーがある場合
-    if(!empty($err_msg[$str])){
-      //POSTにデータがある場合
-      if(isset($method[$str])){
-        return sanitize($method[$str]);
-      }else{
-        //ない場合（基本ありえない）はDBの情報を表示
-        return sanitize($dbFormData[$str]);
-      }
-    }else{
-      //POSTにデータがあり、DBの情報と違う場合
-      if(isset($method[$str]) && $method[$str] !== $dbFormData[$str]){
-        return sanitize($method[$str]);
-      }else{
-        return sanitize($dbFormData[$str]);
-      }
-    }
-  }else{
-    if(isset($method[$str])){
-      return sanitize($method[$str]);
-    }
-  }
-}
-
-//================================
-// ログイン認証
-//================================
-function isLogin(){
-  // ログインしている場合
-  if( !empty($_SESSION['login_date']) ){
-    debug('ログイン済みユーザーです。');
-
-    // 現在日時が最終ログイン日時＋有効期限を超えていた場合
-    if( ($_SESSION['login_date'] + $_SESSION['login_limit']) < time()){
-      debug('ログイン有効期限オーバーです。');
-
-      // セッションを削除（ログアウトする）
-      session_destroy();
-      return false;
-    }else{
-      debug('ログイン有効期限以内です。');
-      return true;
-    }
-
-  }else{
-    debug('未ログインユーザーです。');
-    return false;
-  }
-}
-
-// 画像処理
-function uploadImg($file, $key){
-  debug('画像アップロード処理開始');
-  debug('FILE情報：'.print_r($file,true));
-
-  if (isset($file['error']) && is_int($file['error'])) {
-    try {
-      // バリデーション
-      // $file['error'] の値を確認。配列内には「UPLOAD_ERR_OK」などの定数が入っている。
-      //「UPLOAD_ERR_OK」などの定数はphpでファイルアップロード時に自動的に定義される。定数には値として0や1などの数値が入っている。
-      switch ($file['error']) {
-          case UPLOAD_ERR_OK: // OK
-              break;
-          case UPLOAD_ERR_NO_FILE:   // ファイル未選択の場合
-              throw new RuntimeException('ファイルが選択されていません');
-          case UPLOAD_ERR_INI_SIZE:  // php.ini定義の最大サイズが超過した場合
-          case UPLOAD_ERR_FORM_SIZE: // フォーム定義の最大サイズ超過した場合
-              throw new RuntimeException('ファイルサイズが大きすぎます');
-          default: // その他の場合
-              throw new RuntimeException('その他のエラーが発生しました');
-      }
-
-
-      require 'vendor/autoload.php';
-
-      $type = @exif_imagetype($file['tmp_name']);
-
-      if (!in_array($type, [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG], true)) { // 第三引数にはtrueを設定すると厳密にチェックしてくれるので必ずつける
-          throw new RuntimeException('画像形式が未対応です');
-      }
-
-      // $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
-
-      $s3client = new Aws\S3\S3Client([
-        'credentials' => [
-            'key' => getenv('AWS_ACCESS_KEY_ID'),
-            'secret' => getenv('AWS_SECRET_ACCESS_KEY'),
-        ],
-        'region' => 'ap-northeast-1',
-        'version' => 'latest',
-      ]);
-
-      if (!is_uploaded_file($file['tmp_name'])) {
-        return;
-      }
-
-      $keypath = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
-      $filepath = $file['tmp_name'].image_type_to_extension($type);
-      // $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
-      // S3バケットに画像をアップロード
-      $result = $s3client->putObject(array(
-          'Bucket' => getenv('AWS_BUCKET'),
-          'Key' => $filepath,
-          'SourceFile' => $keypath,
-          'ACL' => 'public-read', // 画像は一般公開されます
-          'ContentType' => mime_content_type($file['tmp_name']),
-      ));
-
-      // $file['mime']の値はブラウザ側で偽装可能なので、MIMEタイプを自前でチェックする
-      // exif_imagetype関数は「IMAGETYPE_GIF」「IMAGETYPE_JPEG」などの定数を返す
-      // $type = @exif_imagetype($file['tmp_name']);
-      // if (!in_array($type, [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG], true)) { // 第三引数にはtrueを設定すると厳密にチェックしてくれるので必ずつける
-      //     throw new RuntimeException('画像形式が未対応です');
-      // }
-
-      // ファイルデータからSHA-1ハッシュを取ってファイル名を決定し、ファイルを保存する
-      // ハッシュ化しておかないとアップロードされたファイル名そのままで保存してしまうと同じファイル名がアップロードされる可能性があり、
-      // DBにパスを保存した場合、どっちの画像のパスなのか判断つかなくなってしまう
-      // image_type_to_extension関数はファイルの拡張子を取得するもの
-      // // // $path = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
-      // // if (!move_uploaded_file($file['tmp_name'], $path)) { //ファイルを移動する
-      // //     throw new RuntimeException('ファイル保存時にエラーが発生しました');
-      // // }
-      // // 保存したファイルパスのパーミッション（権限）を変更する
-      // chmod($path, 0644);
-
-      // debug('ファイルは正常にアップロードされました');
-      // debug('ファイルパス：'.$path);
-      return $result['ObjectURL'];
-
-    } catch (RuntimeException $e) {
-
-      debug($e->getMessage());
-      global $err_msg;
-      $err_msg[$key] = $e->getMessage();
-
-    }
-  }
-}
-
-
-function getCategory(){
-
-  debug('カテゴリー情報を取得します。');
-  //例外処理
-  try {
-    // DBへ接続
-    $dbh = dbConnect();
-    // SQL文作成
-    $sql = 'SELECT * FROM categories';
-    $data = array();
-    // クエリ実行
-    $stmt = queryPost($dbh, $sql, $data);
-
-    if($stmt){
-      // クエリ結果の全データを返却
-      return $stmt->fetchAll();
-    }else{
-      return false;
-    }
-
-  } catch (Exception $e) {
-    error_log('エラー発生:' . $e->getMessage());
-  }
-  }
-
-  function getCharacter(){
-
-    debug('カテゴリー情報を取得します。');
-    //例外処理
-    try {
-      // DBへ接続
-      $dbh = dbConnect();
-      // SQL文作成
-      $sql = 'SELECT * FROM characters';
-      $data = array();
-      // クエリ実行
-      $stmt = queryPost($dbh, $sql, $data);
-
-      if($stmt){
-        // クエリ結果の全データを返却
-        return $stmt->fetchAll();
-      }else{
-        return false;
-      }
-
-    } catch (Exception $e) {
-      error_log('エラー発生:' . $e->getMessage());
-    }
-    }
-
-//sessionを１回だけ取得できる
-function getSessionFlash($key){
-  if(!empty($_SESSION[$key])){
-    $data = $_SESSION[$key];
-    $_SESSION[$key] = '';
-    return $data;
   }
 }
 
@@ -506,7 +281,6 @@ function getMemory($u_id,$m_id){
   debug('思い出情報を取得します。');
   debug('ユーザーID：'.$u_id);
   debug('思い出ID：'.$m_id);
-
   //例外処理
   try {
     //DBへ接続
@@ -523,6 +297,7 @@ function getMemory($u_id,$m_id){
     }else{
       return false;
     }
+
   } catch (Exception $e) {
     error_log('エラー発生:' . $e->getMessage());
   }
@@ -585,21 +360,18 @@ function getMyMemory($u_id,$currentMinNum,$span = 10){
 }
 
 function getMyFavorit($u_id,$currentMinNum,$span = 10){
-
+  //例外処理
   try{
     //DBへ接続
     $dbh = dbConnect();
-
     // 件数用のSQL文作成
-    $sql = 'SELECT
-            m.id
+    $sql = 'SELECT m.id
             FROM memories as m
             LEFT JOIN memory_favorit as mf
             on mf.memory_id = m.id
             INNER JOIN users as u
             on m.user_id = u.id
             WHERE mf.user_id = :u_id';
-
     $data = array(':u_id'=>$u_id);
     // クエリ実行
     $stmt = queryPost($dbh, $sql, $data);
@@ -607,10 +379,11 @@ function getMyFavorit($u_id,$currentMinNum,$span = 10){
     if (!$stmt) {
       return false;
     }
-
-    $rst['total'] = $stmt->rowCount(); //総レコード数
-    $rst['total_page'] = ceil($rst['total']/$span); //総ページ数
-
+    //総レコード数
+    $rst['total'] = $stmt->rowCount();
+    //総ページ数
+    $rst['total_page'] = ceil($rst['total']/$span);
+    //いいねした思い出を取得
     $sql = 'SELECT
             m.id,
             m.pic1,
@@ -626,7 +399,6 @@ function getMyFavorit($u_id,$currentMinNum,$span = 10){
             INNER JOIN users as u
             on m.user_id = u.id
             WHERE mf.user_id = :u_id';
-
     $data = array(':u_id' => $u_id);
     // クエリ実行
     $stmt = queryPost($dbh, $sql, $data);
@@ -638,7 +410,6 @@ function getMyFavorit($u_id,$currentMinNum,$span = 10){
     }else{
       return false;
     }
-
   } catch (Exception $e) {
       error_log('エラー発生:' . $e->getMessage());
     }
@@ -668,24 +439,33 @@ function getMemoriesList($currentMinNum,$category,$character,$kerword,$sort,$spa
             FROM memories as m
             INNER JOIN users as u
             on m.user_id = u.id';
+
+    //絞り込み条件句を格納.
     $where = [];
+    //絞り込み(カテゴリー用)条件句を格納
     $wherecharacter = [];
+    //絞り込み(登場人物用)条件句を格納
     $wherecategory  = [];
+
     if(!empty($character)){
       foreach ((array) $character as $value) {
         $wherecharacter[] =" FIND_IN_SET($value,character_id)";
       }
       $where[] = implode(' OR ',$wherecharacter);
     }
+
     if(!empty($category)){
       foreach ((array) $category as $value) {
         $wherecategory[] =" FIND_IN_SET($value,category_id)";
       }
       $where[] = implode(' OR ',$wherecategory);
     }
+
     if (!empty($kerword)) {
       $where[] = "memory_title LIKE '%$kerword%' OR memory_explanation LIKE '%$kerword%'";
     }
+
+    //条件句が空でないなら、絞り込み用の条件句を付与する。
     if(!empty($where)){
       $wheresql = implode(' AND ',$where);
       $sql.= " WHERE m.user_id = u.id and m.delete_flg = 0 AND ".$wheresql;
@@ -693,6 +473,7 @@ function getMemoriesList($currentMinNum,$category,$character,$kerword,$sort,$spa
       $sql.= " WHERE m.user_id = u.id and m.delete_flg = 0 ";
     }
 
+    //ソート選択されていた場合、撮影日の並び替えを行う
     if(!empty($sort)){
       switch($sort){
         case 1:
@@ -705,7 +486,6 @@ function getMemoriesList($currentMinNum,$category,$character,$kerword,$sort,$spa
     }
 
     $data = array();
-
     //クエリ実行
     $stmt = queryPost($dbh,$sql,$data);
 
@@ -718,8 +498,8 @@ function getMemoriesList($currentMinNum,$category,$character,$kerword,$sort,$spa
       return false;
     }
 
+    //取得件数を設定
     $sql .= ' LIMIT '.$span.' OFFSET '.$currentMinNum;
-
     //クエリ実行
     $stmt = queryPost($dbh,$sql,$data);
 
@@ -734,6 +514,7 @@ function getMemoriesList($currentMinNum,$category,$character,$kerword,$sort,$spa
     error_log('エラー発生:' . $e->getMessage());
   }
 }
+
 function getMemoryFavoritCount($m_id){
   debug('お気に入り件数を取得します。');
   debug('思い出ID：'.$m_id);
@@ -756,6 +537,7 @@ function getMemoryFavoritCount($m_id){
     error_log('エラー発生:' . $e->getMessage());
   }
 }
+
 function getOtherMemoryCount($u_id){
   debug('他の人の思い出情報を取得します。');
   debug('ユーザID：'.$u_id);
@@ -847,11 +629,10 @@ function getMemoryOne($m_id){
 
     if($stmt){
       $rst['character_data'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $rst;
     }else{
       return false;
     }
-
-    return $rst;
 
   } catch (Exception $e) {
     error_log('エラー発生:' . $e->getMessage());
@@ -886,6 +667,7 @@ function myfavoritmemory($u_id){
     error_log('エラー発生:' . $e->getMessage());
   }
 }
+
 function isMemoryFavorit($u_id, $m_id){
   debug('お気に入り情報があるか確認します。');
   debug('ユーザーID：'.$u_id);
@@ -912,6 +694,216 @@ function isMemoryFavorit($u_id, $m_id){
     error_log('エラー発生:' . $e->getMessage());
   }
 }
+
+function getCategory(){
+
+  debug('カテゴリー情報を取得します。');
+  //例外処理
+  try {
+    // DBへ接続
+    $dbh = dbConnect();
+    // SQL文作成
+    $sql = 'SELECT * FROM categories';
+    $data = array();
+    // クエリ実行
+    $stmt = queryPost($dbh, $sql, $data);
+
+    if($stmt){
+      // クエリ結果の全データを返却
+      return $stmt->fetchAll();
+    }else{
+      return false;
+    }
+
+  } catch (Exception $e) {
+    error_log('エラー発生:' . $e->getMessage());
+  }
+}
+
+function getCharacter(){
+
+  debug('カテゴリー情報を取得します。');
+  //例外処理
+  try {
+    // DBへ接続
+    $dbh = dbConnect();
+    // SQL文作成
+    $sql = 'SELECT * FROM characters';
+    $data = array();
+    // クエリ実行
+    $stmt = queryPost($dbh, $sql, $data);
+
+    if($stmt){
+      // クエリ結果の全データを返却
+      return $stmt->fetchAll();
+    }else{
+      return false;
+    }
+
+  } catch (Exception $e) {
+    error_log('エラー発生:' . $e->getMessage());
+  }
+}
+
+// サニタイズ
+function sanitize($str){
+  if (is_array($str)) {
+    return array_map('htmlspecialchars',$str);
+  }else{
+    return htmlspecialchars($str,ENT_QUOTES);
+  }
+}
+
+// フォーム入力保持
+function getFormData($str,$flg = false){
+
+if ($flg) {
+  $method = $_GET;
+}else{
+  $method = $_POST;
+}
+
+global $dbFormData;
+  // ユーザーデータがある場合
+    if(!empty($dbFormData)){
+    //フォームのエラーがある場合
+    if(!empty($err_msg[$str])){
+      //POSTにデータがある場合
+      if(isset($method[$str])){
+        return sanitize($method[$str]);
+      }else{
+        //ない場合（基本ありえない）はDBの情報を表示
+        return sanitize($dbFormData[$str]);
+      }
+    }else{
+      //POSTにデータがあり、DBの情報と違う場合
+      if(isset($method[$str]) && $method[$str] !== $dbFormData[$str]){
+        return sanitize($method[$str]);
+      }else{
+        return sanitize($dbFormData[$str]);
+      }
+    }
+  }else{
+    if(isset($method[$str])){
+      return sanitize($method[$str]);
+    }
+  }
+}
+
+//================================
+// ログイン認証
+//================================
+function isLogin(){
+  // ログインしている場合
+  if( !empty($_SESSION['login_date']) ){
+    debug('ログイン済みユーザーです。');
+
+    // 現在日時が最終ログイン日時＋有効期限を超えていた場合
+    if( ($_SESSION['login_date'] + $_SESSION['login_limit']) < time()){
+      debug('ログイン有効期限オーバーです。');
+
+      // セッションを削除（ログアウトする）
+      session_destroy();
+      return false;
+    }else{
+      debug('ログイン有効期限以内です。');
+      return true;
+    }
+
+  }else{
+    debug('未ログインユーザーです。');
+    return false;
+  }
+}
+
+// 画像処理
+function uploadImg($file, $key){
+  debug('画像アップロード処理開始');
+  debug('FILE情報：'.print_r($file,true));
+
+  if (isset($file['error']) && is_int($file['error'])) {
+    try {
+      // バリデーション
+      switch ($file['error']) {
+          case UPLOAD_ERR_OK: // OK
+              break;
+          case UPLOAD_ERR_NO_FILE:   // ファイル未選択の場合
+              throw new RuntimeException('ファイルが選択されていません');
+          case UPLOAD_ERR_INI_SIZE:  // php.ini定義の最大サイズが超過した場合
+          case UPLOAD_ERR_FORM_SIZE: // フォーム定義の最大サイズ超過した場合
+              throw new RuntimeException('ファイルサイズが大きすぎます');
+          default: // その他の場合
+              throw new RuntimeException('その他のエラーが発生しました');
+      }
+
+      if (!is_uploaded_file($file['tmp_name'])) {
+        return;
+      }
+
+      require 'vendor/autoload.php';
+
+      //S3バケットフォルダを設定
+      $keypath = 'uploads/'.sha1_file($file['tmp_name']).image_type_to_extension($type);
+      //S3バケットに登録するファイルを設定
+      $filepath = $file['tmp_name'];
+      //ファイルの画像形式を取得
+      $type = @exif_imagetype($file['tmp_name']);
+
+      // 画像形式を判定
+      if (!in_array($type, [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG], true)) {
+          throw new RuntimeException('画像形式が未対応です');
+      }
+
+      //S3クライアント設定
+      $s3client = new Aws\S3\S3Client([
+        'credentials' => [
+            'key' => getenv('AWS_ACCESS_KEY_ID'),
+            'secret' => getenv('AWS_SECRET_ACCESS_KEY'),
+        ],
+        'region' => 'ap-northeast-1',
+        'version' => 'latest',
+      ]);
+
+      // S3バケットに画像をアップロード
+      $result = $s3client->putObject(array(
+          'Bucket' => getenv('AWS_BUCKET'),
+          'Key' => $keypath,
+          'SourceFile' => $filepath,
+          'ACL' => 'public-read', // 画像は一般公開されます
+          'ContentType' => mime_content_type($file['tmp_name']),
+      ));
+
+      return $result['ObjectURL'];
+
+    } catch (RuntimeException $e) {
+
+      debug($e->getMessage());
+      global $err_msg;
+      $err_msg[$key] = $e->getMessage();
+
+    }
+  }
+}
+
+//画像表示用関数
+function showImg($path){
+  if(empty($path)){
+    return 'img/sample-img.png';
+  }else{
+    return $path;
+  }
+}
+
+//sessionを１回だけ取得できる
+function getSessionFlash($key){
+  if(!empty($_SESSION[$key])){
+    $data = $_SESSION[$key];
+    $_SESSION[$key] = '';
+    return $data;
+  }
+}
+
+
 
 //GETパラメータ付与
 // $del_key : 付与から取り除きたいGETパラメータのキー
@@ -982,34 +974,6 @@ function pagination( $currentPageNum, $totalPageNum, $link = '', $pageColNum = 5
       }
     echo '</ul>';
   echo '</div>';
-}
-
-
-//メール送信
-  function sendMail($from, $to, $subject, $comment){
-    if(!empty($to) && !empty($subject) && !empty($comment)){
-        //文字化けしないように設定
-        mb_language("Japanese"); //現在使っている言語を設定する
-        mb_internal_encoding("UTF-8"); //内部の日本語をどうエンコーディング（機械が分かる言葉へ変換）するかを設定
-
-        //メールを送信（送信結果はtrueかfalseで返ってくる）
-        $result = mb_send_mail($to, $subject, $comment, "From: ".$from);
-        //送信結果を判定
-        if ($result) {
-          debug('メールを送信しました。');
-        } else {
-          debug('【エラー発生】メールの送信に失敗しました。');
-        }
-    }
-}
-
-//画像表示用関数
-function showImg($path){
-  if(empty($path)){
-    return 'img/sample-img.png';
-  }else{
-    return $path;
-  }
 }
 
 //エラーメッセージ関数
