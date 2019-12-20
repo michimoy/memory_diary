@@ -68,13 +68,13 @@ if(!empty($_POST)){
 
         // クエリ成功の場合
         if($stmt){
-          $_SESSION['msg_success'] = SUC06;
 
-          //メールを送信
-          require 'vendor/autoload.php';
+          $_SESSION['msg_success'] = SUC06;
+          //メール送信情報
           $username = ($userData['name']) ? $userData['name'] : '名無し';
           $fromemail = "info@memorydiary.com";
           $toemail = $userData['email'];
+          $subject = "パスワード変更要求";
           $content = <<<EOT
 {$username} さん
 パスワードが変更されました。
@@ -85,18 +85,7 @@ URL: https://memorydiary.herokuapp.com/
 Email: {$fromemail}
 ////////////////////////////////////////
 EOT;
-
-          $email = new \SendGrid\Mail\Mail();
-          $email->setFrom($fromemail, "メモリダイアリー事務局");
-          $email->setSubject("パスワード変更要求");
-          $email->addTo($toemail);
-          $email->addContent("text/plain",$content);
-          $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
-          $response = $sendgrid->send($email);
-          print $response->statusCode() . "\n";
-          print_r($response->headers());
-          print $response->body() . "\n";
-
+          sendEmail($username,$fromemail,$toemail,$subject,$content);
           header("Location:mypage.php"); //マイページへ
         }
 

@@ -11,7 +11,7 @@ ini_set('error_log','php.log');
 // デバッグ
 //================================
 //デバッグフラグ
-$debug_flg = true;
+$debug_flg = false;
 //デバッグログ関数
 function debug($str){
   global $debug_flg;
@@ -62,12 +62,16 @@ define('MSG12','いずれか一つは選択してください。');
 define('MSG13','500文字以内で入力してください。');
 define('MSG14', '古いパスワードが違います。');
 define('MSG15', '古いパスワードと同じです。');
+define('MSG16', '文字で入力してください');
+define('MSG17', '正しくありません');
+define('MSG18', '有効期限が切れています');
 define('SUC01','ログインしました。');
 define('SUC02','プロフィールを更新しました。');
 define('SUC03','ユーザ登録が完了しました。');
 define('SUC04','思い出の記録が完了しました。');
 define('SUC05','思い出の修正が完了しました。');
 define('SUC06','パスワードを変更しました。');
+define('SUC07', 'メールを送信しました');
 
 //エラーメッセージ格納用の配列
 $err_msg = array();
@@ -138,6 +142,14 @@ function validPass($str, $key){
   validMinLen($str, $key);
 }
 
+//固定長チェック
+function validLength($str, $key, $len = 8){
+  if( mb_strlen($str) !== $len ){
+    global $err_msg;
+    $err_msg[$key] = $len . MSG16;
+  }
+}
+
 //バリデーション関数(日付フォーマット)
 function validDateformat($date,$key){
   global $err_msg;
@@ -194,15 +206,15 @@ function dbconnect(){
   //DBへの接続準備
 
   //ローカル用
-  // $dsn  = 'mysql:dbname=memory_diary;host=localhost;charset=utf8';
-  // $user = 'root';
-  // $password = 'root';
+  $dsn  = 'mysql:dbname=memory_diary;host=localhost;charset=utf8';
+  $user = 'root';
+  $password = 'root';
   //本番用
-  $db = parse_url($_SERVER['CLEARDB_DATABASE_URL']);
-  $db['dbname'] = ltrim($db['path'], '/');
-  $dsn = "mysql:host={$db['host']};dbname={$db['dbname']};charset=utf8";
-  $user = $db['user'];
-  $password = $db['pass'];
+  // $db = parse_url($_SERVER['CLEARDB_DATABASE_URL']);
+  // $db['dbname'] = ltrim($db['path'], '/');
+  // $dsn = "mysql:host={$db['host']};dbname={$db['dbname']};charset=utf8";
+  // $user = $db['user'];
+  // $password = $db['pass'];
   $options = array(
     // SQL実行失敗時にはエラーコードのみ設定
     PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
@@ -857,8 +869,8 @@ function uploadImg($file, $key){
       //S3クライアント設定
       $s3client = new Aws\S3\S3Client([
         'credentials' => [
-            'key' => getenv('AWS_ACCESS_KEY_ID'),
-            'secret' => getenv('AWS_SECRET_ACCESS_KEY'),
+            'key' => 'AKIA5GUWEMTDQNDKYUH3',
+            'secret' => '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',
         ],
         'region' => 'ap-northeast-1',
         'version' => 'latest',
@@ -866,7 +878,7 @@ function uploadImg($file, $key){
 
       // S3バケットに画像をアップロード
       $result = $s3client->putObject(array(
-          'Bucket' => getenv('AWS_BUCKET'),
+          'Bucket' => 'memorydiary',
           'Key' => $keypath,
           'SourceFile' => $filepath,
           'ACL' => 'public-read', // 画像は一般公開されます
@@ -904,7 +916,6 @@ function getSessionFlash($key){
 }
 
 
-
 //GETパラメータ付与
 // $del_key : 付与から取り除きたいGETパラメータのキー
 function appendGetParam($arr_del_key = array()){
@@ -932,27 +943,26 @@ function appendGetParam($arr_del_key = array()){
 // $totalPageNum : 総ページ数
 // $link : 検索用GETパラメータリンク
 // $pageColNum : ページネーション表示数
-function pagination( $currentPageNum, $totalPageNum, $link = '', $pageColNum = 5){
-  // 現在のページが、総ページ数と同じ　かつ　総ページ数が表示項目数以上なら、左にリンク４個出す
-  if( $currentPageNum == $totalPageNum && $totalPageNum > $pageColNum){
-    $minPageNum = $currentPageNum - 4;
+function pagination($currentPageNum, $totalPageNum, $link = ''){
+  if ($totalPageNum == 0 || $totalPageNum == 1) {
+    $minPageNum = $currentPageNum;
     $maxPageNum = $currentPageNum;
+  // 現ページが1の場合は左に何も出さない。右に５個出す。
+  }elseif($currentPageNum == 1){
+    $minPageNum = $currentPageNum;
+    $maxPageNum = $currentPageNum + 4;
+  // 現在のページが、総ページ数と同じ場合左にリンク４個出す
+  }elseif( $currentPageNum == $totalPageNum){
+    $minPageNum = $currentPageNum - 4;
+    $maxPageNum = $totalPageNum;
   // 現在のページが、総ページ数の１ページ前なら、左にリンク３個、右に１個出す
-  }elseif( $currentPageNum == ($totalPageNum-1) && $totalPageNum > $pageColNum){
+  }elseif( $currentPageNum == ($totalPageNum-1) ){
     $minPageNum = $currentPageNum - 3;
-    $maxPageNum = $currentPageNum + 1;
+    $maxPageNum = $totalPageNum;
   // 現ページが2の場合は左にリンク１個、右にリンク３個だす。
-  }elseif( $currentPageNum == 2 && $totalPageNum > $pageColNum){
+  }elseif( $currentPageNum == 2){
     $minPageNum = $currentPageNum - 1;
     $maxPageNum = $currentPageNum + 3;
-  // 現ページが1の場合は左に何も出さない。右に５個出す。
-  }elseif( $currentPageNum == 1 && $totalPageNum > $pageColNum){
-    $minPageNum = $currentPageNum;
-    $maxPageNum = 5;
-  // 総ページ数が表示項目数より少ない場合は、総ページ数をループのMax、ループのMinを１に設定
-  }elseif($totalPageNum < $pageColNum){
-    $minPageNum = 1;
-    $maxPageNum = $totalPageNum;
   // それ以外は左に２個出す。
   }else{
     $minPageNum = $currentPageNum - 2;
@@ -970,7 +980,7 @@ function pagination( $currentPageNum, $totalPageNum, $link = '', $pageColNum = 5
         echo '"><a href="?p='.$i.$link.'">'.$i.'</a></li>';
       }
       if($currentPageNum != $maxPageNum && $maxPageNum > 1){
-        echo '<li class="list-item"><a href="?p='.$maxPageNum.$link.'">&gt;</a></li>';
+        echo '<li class="list-item"><a href="?p='.$totalPageNum.'">&gt;</a></li>';
       }
     echo '</ul>';
   echo '</div>';
@@ -982,4 +992,36 @@ function getErrMsg($key){
   if(!empty($err_msg[$key])){
     return $err_msg[$key];
   }
+}
+
+//mail送信
+function sendEmail($fromemail,$toemail,$subject,$content){
+
+  require 'vendor/autoload.php';
+
+  $email = new \SendGrid\Mail\Mail();
+  $email->setFrom($fromemail, "メモリダイアリー事務局");
+  $email->setSubject($subject);
+  $email->addTo($toemail);
+  $email->addContent("text/plain",$content);
+  $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
+  try {
+      $response = $sendgrid->send($email);
+      print $response->statusCode() . "\n";
+      print_r($response->headers());
+      print $response->body() . "\n";
+  } catch (Exception $e) {
+      echo 'Caught exception: '. $e->getMessage() ."\n";
+  }
+
+}
+
+//認証キー生成
+function makeRandKey($length = 8) {
+    static $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJLKMNOPQRSTUVWXYZ0123456789';
+    $str = '';
+    for ($i = 0; $i < $length; ++$i) {
+        $str .= $chars[mt_rand(0, 61)];
+    }
+    return $str;
 }

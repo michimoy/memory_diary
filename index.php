@@ -17,16 +17,34 @@ $siteTitle = 'HOME';
 require('head.php');
 
 // カレントページ
-$currentPageNum = (!empty($_GET['p'])) ? $_GET['p'] : 1; //デフォルトは１ページめ
+$currentPageNum = (!empty($_GET['p'])) ? strstr($_GET['p'],"＆",true) : 1; //デフォルトは１ページめ
 // カテゴリー
 $category = (!empty($_GET['ca_id'])) ? $_GET['ca_id'] : '';
+// ページング用
+$c_idlist = '';
+//カテゴリーが空でなければidを設定
+if (!empty($category)){
+  foreach ($category as $value) {
+    $c_idlist.='＆c_id%5B%5D='.$value;
+  }
+}
 // 登場人物
 $character = (!empty($_GET['ch_id'])) ? $_GET['ch_id'] : '';
+
+// ページング用
+$ch_idlist = '';
+//登場人物が空でなければidを設定
+if (!empty($character)){
+  foreach ($character as $value) {
+    $ch_idlist.='＆ch_id%5B%5D='.$value;
+  }
+}
 // キーワード
 $kerword = (!empty($_GET['kerword'])) ? $_GET['kerword'] : '';
 // ソート順
 $sort = (!empty($_GET['sort'])) ? $_GET['sort'] : '';
-
+//ページング時の検索get項目
+$getserchlist = $c_idlist.$ch_idlist.'＆sort='.$sort.'&kerword='.$kerword;
 // DBからカテゴリデータを取得
 $dbCategoryData = getCategory();
 // DBから登場人物データを取得
@@ -34,7 +52,7 @@ $dbCharacterData = getCharacter();
 // 表示件数
 $listSpan = 10;
 // 現在の表示レコード先頭を算出
-$currentMinNum = (($currentPageNum-1)*$listSpan);//1ページ目なら(1-1)*20 = 0 、 ２ページ目なら(2-1)*20 = 20
+$currentMinNum = (((int)$currentPageNum-1)*$listSpan);//1ページ目なら(1-1)*20 = 0 、 ２ページ目なら(2-1)*20 = 20
 // DBから思い出データを取得
 $memoryData = getMemoriesList($currentMinNum,$category,$character,$kerword,$sort,$listSpan);
 
@@ -44,8 +62,8 @@ $memoryData = getMemoriesList($currentMinNum,$category,$character,$kerword,$sort
 require('header.php');
 ?>
 <div id="contents" class="site-width">
-  <section id="sidebar" style="position:fixed;">
-    <form name="" method="get">
+  <section id="sidebar">
+      <form name="" method="get">
       <h1 class="title">絞り込み</h1><br>
       <div class="sidebar_category">
         <h3>カテゴリー</h3>
@@ -140,7 +158,8 @@ require('header.php');
          ?>
       </ul>
     </div>
-    <?php pagination($currentPageNum, $memoryData['total_page']); ?>
+
+    <?php pagination((int)$currentPageNum, $memoryData['total_page'],$getserchlist); ?>
   </section>
 </div>
 <!-- footer -->
