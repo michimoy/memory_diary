@@ -86,7 +86,6 @@ Email: {$fromemail}
 EOT;
             sendEmail($fromemail,$toemail,$subject,$content);
             //セッション削除
-            session_unset();
             $_SESSION['msg_success'] = SUC07;
             debug('セッション変数の中身：'.print_r($_SESSION,true));
             header("Location:login.php"); //ログインページへ
