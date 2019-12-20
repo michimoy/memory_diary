@@ -85,7 +85,7 @@ URL: https://memorydiary.herokuapp.com/
 Email: {$fromemail}
 ////////////////////////////////////////
 EOT;
-          sendEmail($username,$fromemail,$toemail,$subject,$content);
+          sendEmail($fromemail,$toemail,$subject,$content);
           header("Location:mypage.php"); //マイページへ
         }
 

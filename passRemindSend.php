@@ -49,10 +49,9 @@ if(!empty($_POST)){
         if($stmt && $result['emailcount']!= 0){
           debug('クエリ成功。DB登録あり。');
           $_SESSION['msg_success'] = SUC07;
-
           $auth_key = makeRandKey(); //認証キー生成
           //メール送信情報
-          $username = ($result['name']) ? $result['name'] : '名無し';
+          $username = (!empty($result['name'])) ? $result['name'] : '名無し';
           $fromemail = "info@memorydiary.com";
           $toemail = $email;
           $subject = "パスワード再発行要求";
