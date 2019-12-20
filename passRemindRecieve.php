@@ -67,7 +67,7 @@ if(!empty($_POST)){
             //メールを送信
             $username = $_SESSION['auth_name'];
             $fromemail = "info@memorydiary.com";
-            $toemail = $email;
+            $toemail = $_SESSION['auth_email'];
             $subject = "パスワード再発行完了";
             $comment = <<<EOT
 {$username} さん

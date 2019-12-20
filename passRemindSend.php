@@ -51,7 +51,7 @@ if(!empty($_POST)){
           $_SESSION['msg_success'] = SUC07;
           $auth_key = makeRandKey(); //認証キー生成
           //メール送信情報
-          $username = (!empty($result['name'])) ? $result['name'] : '名無し';
+          $username = $result['name'];
           $fromemail = "info@memorydiary.com";
           $toemail = $email;
           $subject = "パスワード再発行要求";
