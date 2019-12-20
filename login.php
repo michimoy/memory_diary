@@ -7,6 +7,8 @@ debug('ログインページ');
 debug('「「「「「「「「「「「');
 debugLogStart();
 
+//ログイン認証
+require('auth.php');
 
 //================================
 // ログイン画面処理
@@ -107,10 +109,6 @@ require('head.php');
   <p id="js-show-msg" style="display:none;" class="msg-slide">
     <?php echo getSessionFlash('msg_success'); ?>
   </p>
-
-  <?php //ログイン認証
-  require('auth.php');
-  ?>
   <!-- メインコンテンツ -->
   <div id="contents" class="site-width">
     <!--main -->

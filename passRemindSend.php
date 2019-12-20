@@ -50,6 +50,8 @@ if(!empty($_POST)){
           debug('クエリ成功。DB登録あり。');
           $_SESSION['msg_success'] = SUC07;
           $auth_key = makeRandKey(); //認証キー生成
+
+          debug($auth_key);
           //メール送信情報
           $username = $result['name'];
           $fromemail = "info@memorydiary.com";
@@ -83,7 +85,6 @@ EOT;
           debug('セッション変数の中身：'.print_r($_SESSION,true));
 
           header("Location:passRemindRecieve.php"); //認証キー入力ページへ
-
         }else{
           debug('クエリに失敗したかDBに登録のないEmailが入力されました。');
           $err_msg['common'] = MSG09;

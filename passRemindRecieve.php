@@ -49,7 +49,6 @@ if(!empty($_POST)){
         debug('認証OK。');
 
         $pass = makeRandKey(); //パスワード生成
-
         //例外処理
         try {
           // DBへ接続
@@ -63,7 +62,6 @@ if(!empty($_POST)){
           // クエリ成功の場合
           if($stmt){
             debug('クエリ成功。');
-
             //メールを送信
             $username = $_SESSION['auth_name'];
             $fromemail = "info@memorydiary.com";
@@ -90,7 +88,6 @@ EOT;
             $_SESSION['msg_success'] = SUC07;
             debug('セッション変数の中身：'.print_r($_SESSION,true));
             header("Location:login.php"); //ログインページへ
-
           }else{
             debug('クエリに失敗しました。');
             $err_msg['common'] = MSG09;
@@ -116,8 +113,9 @@ require('head.php');
     <?php
       require('header.php');
     ?>
+
     <p id="js-show-msg" style="display:none;" class="msg-slide">
-      <?php echo getSessionFlash('msg_success'); ?>
+      <?php echo $_SESSION['msg_success']; ?>
     </p>
 
     <!-- メインコンテンツ -->

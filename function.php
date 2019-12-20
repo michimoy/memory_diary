@@ -11,7 +11,7 @@ ini_set('error_log','php.log');
 // デバッグ
 //================================
 //デバッグフラグ
-$debug_flg = false;
+$debug_flg = true;
 //デバッグログ関数
 function debug($str){
   global $debug_flg;
@@ -204,6 +204,12 @@ function validEmailDup($email){
 //DB接続関数
 function dbconnect(){
   //DBへの接続準備
+
+  //ローカル用
+  // $dsn  = 'mysql:dbname=memory_diary;host=localhost;charset=utf8';
+  // $user = 'root';
+  // $password = 'root';
+  //本番用
   $db = parse_url($_SERVER['CLEARDB_DATABASE_URL']);
   $db['dbname'] = ltrim($db['path'], '/');
   $dsn = "mysql:host={$db['host']};dbname={$db['dbname']};charset=utf8";
