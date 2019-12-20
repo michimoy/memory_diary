@@ -46,7 +46,7 @@ if(!empty($_POST)){
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
         // EmailがDBに登録されている場合
-        if($stmt && $result['emailcount']!= 0){
+        if($stmt && $result['emailcount'] != 0){
           debug('クエリ成功。DB登録あり。');
           $_SESSION['msg_success'] = SUC07;
           $auth_key = makeRandKey(); //認証キー生成
@@ -55,7 +55,7 @@ if(!empty($_POST)){
           $fromemail = "info@memorydiary.com";
           $toemail = $email;
           $subject = "パスワード再発行要求";
-          $comment = <<<EOT
+          $content = <<<EOT
 {$username} さん
 本メールアドレス宛にパスワード再発行のご依頼がありました。
 下記のURLにて認証キーをご入力頂くとパスワードが再発行されます。

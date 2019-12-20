@@ -69,7 +69,7 @@ if(!empty($_POST)){
             $fromemail = "info@memorydiary.com";
             $toemail = $_SESSION['auth_email'];
             $subject = "パスワード再発行完了";
-            $comment = <<<EOT
+            $content = <<<EOT
 {$username} さん
 本メールアドレス宛にパスワードの再発行を致しました。
 下記のURLにて再発行パスワードをご入力頂き、ログインください。
