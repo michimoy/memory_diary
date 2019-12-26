@@ -875,7 +875,7 @@ function uploadImg($file, $key){
       $s3client = new Aws\S3\S3Client([
         'credentials' => [
             'key' => getenv('AWS_ACCESS_KEY_ID'),
-            'secret' => getenv('AWS_SECRET_ACCESS_KEY');
+            'secret' => getenv('AWS_SECRET_ACCESS_KEY'),
         ],
         'region' => 'ap-northeast-1',
         'version' => 'latest',
