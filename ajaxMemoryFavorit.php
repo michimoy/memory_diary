@@ -28,7 +28,7 @@ if(isset($_POST['memoryId']) && isset($_SESSION['user_id']) && isLogin()){
     $stmt = queryPost($dbh, $sql, $data);
 
     $resultCount = $stmt->rowCount();
-  
+
     // レコードが１件でもある場合
     if(!empty($resultCount)){
       $sql = 'DELETE FROM memory_favorit WHERE memory_id = :m_id AND user_id = :u_id';

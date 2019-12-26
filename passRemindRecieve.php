@@ -115,7 +115,7 @@ require('head.php');
     ?>
 
     <p id="js-show-msg" style="display:none;" class="msg-slide">
-      <?php echo $_SESSION['msg_success']; ?>
+      <?php if(!empty($_SESSION['msg_success'])){ echo $_SESSION['msg_success'];} ?>
     </p>
 
     <!-- メインコンテンツ -->

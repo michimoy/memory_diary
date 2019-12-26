@@ -11,7 +11,7 @@ ini_set('error_log','php.log');
 // デバッグ
 //================================
 //デバッグフラグ
-$debug_flg = true;
+$debug_flg = false;
 //デバッグログ関数
 function debug($str){
   global $debug_flg;
@@ -205,10 +205,6 @@ function validEmailDup($email){
 function dbconnect(){
   //DBへの接続準備
 
-  //ローカル用
-  // $dsn  = 'mysql:dbname=memory_diary;host=localhost;charset=utf8';
-  // $user = 'root';
-  // $password = 'root';
   //本番用
   $db = parse_url($_SERVER['CLEARDB_DATABASE_URL']);
   $db['dbname'] = ltrim($db['path'], '/');
@@ -516,6 +512,7 @@ function getMemoriesList($currentMinNum,$category,$character,$kerword,$sort,$spa
     $stmt = queryPost($dbh,$sql,$data);
 
     if ($stmt) {
+
       // クエリ結果のデータを全レコードを格納
       $rst['data'] = $stmt->fetchAll();
       return $rst;
@@ -802,6 +799,14 @@ global $dbFormData;
   }
 }
 
+function sessionreset(){
+  unset($_SESSION['category']);
+  unset($_SESSION['character']);
+  unset($_SESSION['sort']);
+  unset($_SESSION['kerword']);
+  unset($_SESSION['searchwhere']);
+}
+
 //================================
 // ログイン認証
 //================================
@@ -870,7 +875,7 @@ function uploadImg($file, $key){
       $s3client = new Aws\S3\S3Client([
         'credentials' => [
             'key' => getenv('AWS_ACCESS_KEY_ID'),
-            'secret' => getenv('AWS_SECRET_ACCESS_KEY'),
+            'secret' => getenv('AWS_SECRET_ACCESS_KEY');
         ],
         'region' => 'ap-northeast-1',
         'version' => 'latest',
@@ -943,26 +948,28 @@ function appendGetParam($arr_del_key = array()){
 // $totalPageNum : 総ページ数
 // $link : 検索用GETパラメータリンク
 // $pageColNum : ページネーション表示数
-function pagination($currentPageNum, $totalPageNum, $link = ''){
-  if ($totalPageNum == 0 || $totalPageNum == 1) {
-    $minPageNum = $currentPageNum;
-    $maxPageNum = $currentPageNum;
-  // 現ページが1の場合は左に何も出さない。右に５個出す。
-  }elseif($currentPageNum == 1){
-    $minPageNum = $currentPageNum;
-    $maxPageNum = $currentPageNum + 4;
-  // 現在のページが、総ページ数と同じ場合左にリンク４個出す
-  }elseif( $currentPageNum == $totalPageNum){
+function pagination($currentPageNum, $totalPageNum, $link = '',$pageColNum = 5){
+
+  // 現在のページが、総ページ数と同じ　かつ　総ページ数が表示項目数以上なら、左にリンク４個出す
+  if( $currentPageNum == $totalPageNum && $totalPageNum > $pageColNum){
     $minPageNum = $currentPageNum - 4;
-    $maxPageNum = $totalPageNum;
+    $maxPageNum = $currentPageNum;
   // 現在のページが、総ページ数の１ページ前なら、左にリンク３個、右に１個出す
-  }elseif( $currentPageNum == ($totalPageNum-1) ){
+  }elseif( $currentPageNum == ($totalPageNum-1) && $totalPageNum > $pageColNum){
     $minPageNum = $currentPageNum - 3;
-    $maxPageNum = $totalPageNum;
+    $maxPageNum = $currentPageNum + 1;
   // 現ページが2の場合は左にリンク１個、右にリンク３個だす。
-  }elseif( $currentPageNum == 2){
+  }elseif( $currentPageNum == 2 && $totalPageNum > $pageColNum){
     $minPageNum = $currentPageNum - 1;
     $maxPageNum = $currentPageNum + 3;
+  // 現ページが1の場合は左に何も出さない。右に５個出す。
+  }elseif( $currentPageNum == 1 && $totalPageNum > $pageColNum){
+    $minPageNum = $currentPageNum;
+    $maxPageNum = 5;
+  // 総ページ数が表示項目数より少ない場合は、総ページ数をループのMax、ループのMinを１に設定
+}elseif($totalPageNum <= $pageColNum){
+    $minPageNum = 1;
+    $maxPageNum = $totalPageNum;
   // それ以外は左に２個出す。
   }else{
     $minPageNum = $currentPageNum - 2;
@@ -980,7 +987,7 @@ function pagination($currentPageNum, $totalPageNum, $link = ''){
         echo '"><a href="?p='.$i.$link.'">'.$i.'</a></li>';
       }
       if($currentPageNum != $maxPageNum && $maxPageNum > 1){
-        echo '<li class="list-item"><a href="?p='.$totalPageNum.'">&gt;</a></li>';
+        echo '<li class="list-item"><a href="?p='.$totalPageNum.$link.'">&gt;</a></li>';
       }
     echo '</ul>';
   echo '</div>';
