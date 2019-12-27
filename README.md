@@ -46,3 +46,4 @@ MySQL
 jQuery,BookBlok,SendGrid  
 Google Fonts  
 Font Awesome  
+AWS S3
