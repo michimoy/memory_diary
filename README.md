@@ -1,6 +1,6 @@
 # MemoryDiary  
   
-当サイトへのリンクはこちら(https://memorydiary.herokuapp.com/)から  
+当サイトへのリンクはこちら(https://memorydiary.herokuapp.com)  
   
 ##Description  
 MemoryDiaryは、日々の思い出を登録していく画像投稿掲示板である。  
