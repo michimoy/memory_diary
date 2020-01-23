@@ -45,25 +45,23 @@ MemoryDiaryは、日々の思い出を登録していく画像投稿掲示板で
 
 18.退会　　
 
-開発環境: 　　　　	 
-MAMP　　
+開発環境:  　	 
+MAMP  
 
 使用エディタ:  
 Atom　　
 
-使用言語:  	
-バックエンド:  	
-PHP 　 	
+使用言語:  
+バックエンド:  
+PHP  
 
-フロントエンド:  	
-HTML 　 	
-CSS 　　 	
-JS 　
+フロントエンド:  
+HTML  
+CSS  
+JS  
 
-DB:  	
-MySQL　　  	
-使用ツール・ライブラリ　　  	
-jQuery,BookBlok,SendGrid　　  
-Google Fonts　　  
-Font Awesome　　 
-AWS S3　　
+DB:  
+MySQL  
+
+使用ツール・ライブラリ:  
+jQuery,BookBlok,SendGrid,Google Fonts,Font Awesome,AWS S3  
